@@ -10,13 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-dotnet@v3
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
         with:
-          dotnet-version: "6.0.x"
+          images: ghcr.io/gsoft-inc/eventgrid-emulator
 
-      - run: ./Build.ps1
-        shell: pwsh
+      - name: Docker build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
