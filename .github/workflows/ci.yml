@@ -31,6 +31,6 @@ jobs:
         with:
           context: ./src
           file: ./src/EventGridEmulator/Dockerfile
-          push: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
