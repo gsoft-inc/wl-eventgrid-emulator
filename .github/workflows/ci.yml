@@ -13,17 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/gsoft-inc/eventgrid-emulator
 
-      - name: Docker build
+      - name: Docker build and push
         uses: docker/build-push-action@v4
         with:
           context: ./src
-          file: ./src/EventGridEmulator/Dockerfile
-          push: false
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
