@@ -23,6 +23,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./src
+          file: ./src/EventGridEmulator/Dockerfile
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
