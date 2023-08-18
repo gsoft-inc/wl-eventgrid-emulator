@@ -10,13 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-dotnet@v3
+      - name: Docker login
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc #v2
         with:
-          dotnet-version: "6.0.x"
+          registry: techplatform0scaffolding0dev0acr.azurecr.io
+          username: ${{ secrets.WORKLEAP_ACR_USERNAME }}
+          password: ${{ secrets.WORKLEAP_ACR_PASSWORD }}
 
-      - run: ./Build.ps1
-        shell: pwsh
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 #v4
+        with:
+          images: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator
+
+      - name: Docker build and push
+        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 #v4
+        with:
+          context: ./src
+          file: ./src/EventGridEmulator/Dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

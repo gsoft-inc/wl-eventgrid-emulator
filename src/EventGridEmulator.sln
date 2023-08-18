@@ -1,12 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventGridEmulator", "EventGridEmulator\EventGridEmulator.csproj", "{B77D5E31-0072-441F-8F88-081E0219B7DF}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34004.107
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventGridEmulator", "EventGridEmulator\EventGridEmulator.csproj", "{B77D5E31-0072-441F-8F88-081E0219B7DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloPublisher", "HelloPublisher\HelloPublisher.csproj", "{FBB40946-B575-4346-A69E-2B796B9801D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloPublisher", "HelloPublisher\HelloPublisher.csproj", "{FBB40946-B575-4346-A69E-2B796B9801D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloSubscriber", "HelloSubscriber\HelloSubscriber.csproj", "{ED5476A6-B2EC-45F7-B038-34B5D32496FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloSubscriber", "HelloSubscriber\HelloSubscriber.csproj", "{ED5476A6-B2EC-45F7-B038-34B5D32496FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventGridEmulator.Tests", "EventGridEmulator.Tests\EventGridEmulator.Tests.csproj", "{5FB0B257-612A-4312-9216-58D1D620E9A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventGridEmulator.Tests", "EventGridEmulator.Tests\EventGridEmulator.Tests.csproj", "{5FB0B257-612A-4312-9216-58D1D620E9A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B97A8AFE-5A07-4C1B-8CCA-23D53248D58A}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		global.json = global.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +39,8 @@ Global
 		{5FB0B257-612A-4312-9216-58D1D620E9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FB0B257-612A-4312-9216-58D1D620E9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FB0B257-612A-4312-9216-58D1D620E9A7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
