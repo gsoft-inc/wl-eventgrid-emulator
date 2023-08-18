@@ -1,9 +1,9 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine AS base
 WORKDIR /app
-EXPOSE 5000
+EXPOSE 8080
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 ENV DOTNET_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_URLS=http://+:8080
 ENV DOCKER_HOST=tcp://localhost:2375
 ENV DOCKER_DRIVER=overlay
 
