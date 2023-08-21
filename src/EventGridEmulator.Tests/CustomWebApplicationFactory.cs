@@ -1,4 +1,4 @@
-﻿using EventGridEmulator.Configuration;
+using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -40,7 +40,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 };
             });
 
-            var handler = new YoloHandler();
+            var handler = new YoloHandler(_ => _ = _);
             HttpClientFactoryServiceCollectionExtensions.AddHttpClient(services, SubscriberConstants.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => handler);
         });
     }

@@ -3,7 +3,7 @@ using Azure.Identity;
 using Azure.Messaging.EventGrid;
 
 var client1 = new EventGridPublisherClient(
-    new Uri("https://localhost:6000/webhook-200"),
+    new Uri("http://localhost:8080/comments-eg/api/events"),
     new AzureCliCredential());
 
 var data = new Dictionary<string, string>();
