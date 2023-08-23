@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{598C67D6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{CE6A2801-5637-40D4-A80C-6F4B389FB1BD}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,12 +52,6 @@ Global
 		{5FB0B257-612A-4312-9216-58D1D620E9A7}.NoVariablesDefault|Any CPU.Build.0 = Release|Any CPU
 		{5FB0B257-612A-4312-9216-58D1D620E9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FB0B257-612A-4312-9216-58D1D620E9A7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}.Debug|Any CPU.ActiveCfg = NoVariablesDefault
-		{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}.Debug|Any CPU.Build.0 = NoVariablesDefault
-		{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}.NoVariablesDefault|Any CPU.ActiveCfg = NoVariablesDefault
-		{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}.NoVariablesDefault|Any CPU.Build.0 = NoVariablesDefault
-		{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}.Release|Any CPU.ActiveCfg = NoVariablesDefault
-		{EDF43FFD-2670-45D8-8CF4-A64B658AD3C7}.Release|Any CPU.Build.0 = NoVariablesDefault
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
