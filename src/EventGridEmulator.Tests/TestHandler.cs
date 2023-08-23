@@ -2,11 +2,11 @@ using System.Net;
 
 namespace EventGridEmulator.Tests;
 
-public sealed class YoloHandler : HttpMessageHandler
+public sealed class TestHandler : HttpMessageHandler
 {
     private readonly Action<string> _requestAction;
 
-    public YoloHandler(Action<string> requestAction)
+    public TestHandler(Action<string> requestAction)
     {
         this._requestAction = requestAction;
     }

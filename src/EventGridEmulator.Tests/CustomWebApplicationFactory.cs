@@ -40,7 +40,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 };
             });
 
-            var handler = new YoloHandler(_ => _ = _);
+            var handler = new TestHandler(_ => _ = _);
             HttpClientFactoryServiceCollectionExtensions.AddHttpClient(services, SubscriberConstants.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => handler);
         });
     }

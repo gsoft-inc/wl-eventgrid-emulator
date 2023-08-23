@@ -21,17 +21,6 @@ public class SubscriberWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureTestServices(services =>
         {
             this._configureServices(services);
-
-            services.Configure<TopicOptions>(options =>
-            {
-                options.Topics = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-                {
-                    ["orders"] = new[]
-                    {
-                        "https://localhost/orders-webhook",
-                    },
-                };
-            });
             services.AddHttpClient(SubscriberConstants.HttpClientName).ConfigurePrimaryHttpMessageHandler(() => this._handler);
         });
     }
