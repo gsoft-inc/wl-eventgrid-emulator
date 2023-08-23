@@ -1,8 +1,0 @@
-version: '3.4'
-
-services:
-  eventgridemulator:
-    image: ${DOCKER_REGISTRY-}eventgridemulator
-    build:
-      context: .
-      dockerfile: EventGridEmulator/Dockerfile

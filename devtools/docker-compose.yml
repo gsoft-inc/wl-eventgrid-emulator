@@ -2,6 +2,10 @@ version: '3.4'
 
 services:
   eventgridemulator:
+    image: ${DOCKER_REGISTRY-}eventgridemulator
+    build:
+      context: .
+      dockerfile: EventGridEmulator/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
