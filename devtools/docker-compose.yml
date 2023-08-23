@@ -9,9 +9,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:8080
+      - KESTREL__CERTIFICATES__DEFAULT__PATH=/etc/ssl/certs/localhost.crt
+      - KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key
     ports:
-      - "80"
-      - "443"
+      - "6500:443"
     volumes:
       - "~/.workleap/workleap-dev-certificate.crt:/etc/ssl/certs/localhost.crt"
       - "~/.workleap/workleap-dev-certificate.key:/etc/ssl/certs/localhost.key"
