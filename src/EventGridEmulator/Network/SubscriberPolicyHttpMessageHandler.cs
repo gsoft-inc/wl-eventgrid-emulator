@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
@@ -78,6 +78,7 @@ internal sealed class SubscriberPolicyHttpMessageHandler : PolicyHttpMessageHand
         }
         catch (HttpRequestException ex)
         {
+            this._logger.LogInformation(ex, "*** More information ***");
             info.LogRequestFailed(this._logger, ex.StatusCode);
             throw;
         }

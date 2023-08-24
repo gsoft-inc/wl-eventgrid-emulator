@@ -13,6 +13,9 @@ services:
       - KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key
     ports:
       - "6500:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - "~/.workleap/workleap-dev-certificate.crt:/etc/ssl/certs/localhost.crt"
       - "~/.workleap/workleap-dev-certificate.key:/etc/ssl/certs/localhost.key"
+  
