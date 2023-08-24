@@ -16,11 +16,10 @@ jobs:
       - name: Docker login
         uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc #v2
         with:
-          # registry: techplatform0scaffolding0dev0acr.azurecr.io
-          # username: ${{ secrets.WORKLEAP_ACR_USERNAME }}
-          # password: ${{ secrets.WORKLEAP_ACR_PASSWORD }}
-          username: ${{ secrets.ERIC_ACR_USERNAME }}
-          password: ${{ secrets.ERIC_ACR_PASSWORD }}
+          registry: techplatform0scaffolding0dev0acr.azurecr.io
+          username: ${{ secrets.WORKLEAP_ACR_USERNAME }}
+          password: ${{ secrets.WORKLEAP_ACR_PASSWORD }}
+
 
       - name: Docker metadata
         id: meta
