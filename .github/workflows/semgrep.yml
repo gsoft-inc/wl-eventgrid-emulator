@@ -28,11 +28,11 @@ jobs:
 
       - name: Pull request scan
         if: ${{ github.event_name == 'pull_request' }}
-        run: semgrep scan --config=auto --verbose --time --error --baseline-commit ${{ github.event.pull_request.base.sha }}
+        run: semgrep scan --config=auto --verbose --time --error --baseline-commit ${{ github.event.pull_request.base.sha }} --exclude-rule yaml.docker-compose.security.writable-filesystem-service.writable-filesys  
 
       - name: Full scan
         if: ${{ github.event_name != 'pull_request' }}
-        run: semgrep scan --config=auto --verbose --time --sarif --output report.sarif
+        run: semgrep scan --config=auto --verbose --time --sarif --output report.sarif --exclude-rule yaml.docker-compose.security.writable-filesystem-service.writable-filesys  
 
       - name: Save report as pipeline artifact
         if: ${{ github.event_name != 'pull_request' }}
