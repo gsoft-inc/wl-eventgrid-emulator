@@ -20,4 +20,4 @@ services:
       - "~/.workleap/workleap-dev-certificate.key:/etc/ssl/certs/localhost.key"
     security_opt:
       - no-new-privileges:true
-    read_only: true
+    read_only: false
