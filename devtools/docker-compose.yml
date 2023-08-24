@@ -18,4 +18,6 @@ services:
     volumes:
       - "~/.workleap/workleap-dev-certificate.crt:/etc/ssl/certs/localhost.crt"
       - "~/.workleap/workleap-dev-certificate.key:/etc/ssl/certs/localhost.key"
-  
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
