@@ -14,3 +14,5 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - "~/.eventgridemulator:/etc/ssl/certs"
+    security_opt:
+      - no-new-privileges:true
