@@ -92,7 +92,7 @@ To use the EventGridEmulator Docker image, you can follow these steps:
     }
    ```
 
-## Building, releasing and versioning
+## Building
 
 The project can be built by running `Build.ps1`.
 
