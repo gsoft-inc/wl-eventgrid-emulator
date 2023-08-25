@@ -36,10 +36,7 @@ public class EmulatorValidationTests
             subject: "foo", 
             eventType: "bar", 
             dataVersion: "1.0", 
-            data: new DataModel
-            {
-                Some = "data",
-            });
+            data: new DataModel(some: "data"));
         var response = await publisher.SendEventAsync(eventGridEvent);
         
         // Assert that the message was successfully sent
@@ -48,11 +45,16 @@ public class EmulatorValidationTests
         // Assert that the message was successfully received
         var @event = JsonSerializer.Deserialize<JsonObject[]>(message) ?? throw new NullReferenceException("Message cannot be deserialized");
         var result = @event.Single()["data"].Deserialize<DataModel>();
-        Assert.Equal("data", result.Some);
+        Assert.Equal("data", result?.Some);
     }
 
-    public struct DataModel
+    private class DataModel
     {
-        public string Some { get; set; }
+        public DataModel(string some)
+        {
+            this.Some = some;
+        }
+
+        public string Some { get; init; }
     }
 }

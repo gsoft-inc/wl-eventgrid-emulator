@@ -5,21 +5,23 @@ Begin {
 }
 
 Process {
-    function EnsureCommandInstalled ($commandName) {
+    function EnsureCommandInstalled ($commandName, $message = "") {
         if ($null -eq (Get-Command $commandName -ErrorAction SilentlyContinue)) {
-            Write-Error "$commandName is not installed, execute Install-Packages.ps1 first"
+            Write-Host $message -ForegroundColor Red
             Exit
         }
     }
 
-    EnsureCommandInstalled "mkcert"
+    EnsureCommandInstalled "mkcert" "
+    MkCert is not installed, See: https://github.com/FiloSottile/mkcert
+    "
 
     Write-Host "Installing localhost certificate..." -ForegroundColor Cyan
 
     # certificate is stored in user profile directory instead of the git repository
-    $workDir = Join-Path $env:USERPROFILE ".workleap"
-    $certPath = Join-Path $workDir "workleap-dev-certificate.crt" # certificate only
-    $certKeyPath = Join-Path $workDir "workleap-dev-certificate.key" # private key only
+    $workDir = Join-Path $env:USERPROFILE ".eventgridemulator"
+    $certPath = Join-Path $workDir "localhost.crt" # certificate only
+    $certKeyPath = Join-Path $workDir "localhost.key" # private key only
 
     # create a trustworthy local certificate authority (CA)
     Invoke-Expression "mkcert -install" | Out-Null
@@ -33,10 +35,7 @@ Process {
         "localhost",
         "127.0.0.1",
         "::1",
-        "host.docker.internal",
-        "*.officevibe.local",
-        "*.sharegate.local",
-        "*.workleap.local"
+        "host.docker.internal"
     ) -join " "
 
     # create the localhost development certificate
