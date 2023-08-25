@@ -1,13 +1,21 @@
-﻿{
+{
   "profiles": {
     "https": {
       "commandName": "Project",
-      "dotnetRunMessages": false,
-      "launchBrowser": false,
-      "applicationUrl": "https://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": false,
+      "applicationUrl": "https://localhost:5000"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "https://+:443;http://+:80"
+      },
+      "publishAllPorts": true,
+      "useSSL": true
     }
   }
 }

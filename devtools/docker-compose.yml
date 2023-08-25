@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  eventgridemulator:
+    image: eventgridemulator
+    build:
+      context: ../src
+      dockerfile: ../src/EventGridEmulator/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:8080
+      - KESTREL__CERTIFICATES__DEFAULT__PATH=/etc/ssl/certs/localhost.crt
+      - KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key
+    ports:
+      - "6500:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - "~/.eventgridemulator/localhost.crt:/etc/ssl/certs/localhost.crt"
+      - "~/.eventgridemulator/localhost.key:/etc/ssl/certs/localhost.key"
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
