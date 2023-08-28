@@ -125,7 +125,10 @@ ege <-- acr : "docker pull"
 @enduml
 ```
 
-
+- Docker compose pull and start an instance of Event Grid Emulator in Docker Desktop.
+- Emulator uses ```/app/appsettings.json``` to simulate topics registrations.
+- Publisher send event to emulator via ```https://localhost:6500```.
+- Subscriber recive the event notification via ```http://host.docker.internal``` which is automatically resolved to the host ip.
 
 ## Building
 
