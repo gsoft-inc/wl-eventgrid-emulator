@@ -98,20 +98,30 @@ The following diagram shows how components interact with each other.
 
 ``` plantuml
 @startuml
+' https://github.com/plantuml-stdlib/Azure-PlantUML
 !include <azure/AzureCommon.puml>
 !include <azure/AzureSimplified.puml>
 !include <azure/Compute/AzureAppService.puml>
 !include <azure/Integration/AzureEventGrid.puml>
+!include <azure/Containers/AzureContainerRegistry.puml>
 left to right direction
 frame "Host Computer" {
 	AzureAppService(pub, "Publisher", "")
 	AzureAppService(sub, "Subscriber", "")
-	frame "Docker Desktop" {
+	frame "Docker Desktop" as docker {
 		AzureEventGrid(ege, "Event Grid Emulator", "")
 	}
 }
-pub ---> ege : "https://localhost:6500"
-sub <--- ege : "http://host.docker.internal:6000"
+frame Azure {
+    AzureContainerRegistry(acr, "Container Registry", "")
+}
+note top of ege
+    /app/appsetings.json
+end note
+
+pub --> ege : "https://localhost:6500"
+sub <-- ege : "http://host.docker.internal:6000"
+ege <-- acr : "docker pull"
 @enduml
 ```
 
