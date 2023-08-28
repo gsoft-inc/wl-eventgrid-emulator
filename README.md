@@ -36,6 +36,8 @@ To use the EventGridEmulator Docker image, you can follow these steps:
     ```
 
 2. Option a) Using docker-compose file (**recommended**):
+   
+   Create a file named `docker-compose.yaml`.
 
     ```yaml
     version: '3.4'
@@ -55,7 +57,10 @@ To use the EventGridEmulator Docker image, you can follow these steps:
             volumes:
                 - "~/.eventgridemulator:/etc/ssl/certs"
     ``` 
-    You have to mount a volume to provide development certificates for https communication
+    Run docker compose:
+    ```
+    docker compose up
+    ```
 
     Option b) Using Docker Cli (*not recommended*):
 
