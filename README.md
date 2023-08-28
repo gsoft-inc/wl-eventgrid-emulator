@@ -94,31 +94,28 @@ To use the EventGridEmulator Docker image, you can follow these steps:
 
 ## How it works
 
+The following diagram shows how components interact with each other.
+
 ``` plantuml
 @startuml
-
-!define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist
-!includeurl AzurePuml/AzureCommon.puml
-!includeurl AzurePuml/AzureSimplified.puml
-!includeurl AzurePuml/Integration/AzureEventGrid.puml
-!includeurl AzurePuml/Compute/AzureAppService.puml
-
-LAYOUT_LEFT_RIGHT
-
+!include <azure/AzureCommon.puml>
+!include <azure/AzureSimplified.puml>
+!include <azure/Compute/AzureAppService.puml>
+!include <azure/Integration/AzureEventGrid.puml>
+left to right direction
 frame "Host Computer" {
 	AzureAppService(pub, "Publisher", "")
 	AzureAppService(sub, "Subscriber", "")
-
 	frame "Docker Desktop" {
-		AzureEventGrid(ege, "EventGridEmulator", "")
+		AzureEventGrid(ege, "Event Grid Emulator", "")
 	}
 }
-
-pub --> ege : "localhost"
-sub <-- ege : "host.docker.internal"
-
+pub ---> ege : "https://localhost:6500"
+sub <--- ege : "http://host.docker.internal:6000"
 @enduml
 ```
+
+
 
 ## Building
 
