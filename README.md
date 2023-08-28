@@ -94,9 +94,8 @@ To use the EventGridEmulator Docker image, you can follow these steps:
 
 ## How it works
 
-<div hidden>
-```
-@startuml emulatorConcept
+``` plantuml
+@startuml
 
 !define AzurePuml https://raw.githubusercontent.com/plantuml-stdlib/Azure-PlantUML/release/2-2/dist
 !includeurl AzurePuml/AzureCommon.puml
@@ -129,9 +128,6 @@ sub <-- ege : "host.docker.internal"
 
 @enduml
 ```
-</div>
-
-![](emulatorConcept.svg)
 
 ## Building
 
