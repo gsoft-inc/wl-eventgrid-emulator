@@ -130,6 +130,39 @@ ege <-- acr : "docker pull"
 - Publisher send event to emulator via ```https://localhost:6500```.
 - Subscriber recive the event notification via ```http://host.docker.internal``` which is automatically resolved to the host ip.
 
+## appsettings.json file format
+
+Here is the schema of the `appsettings.json` file.
+
+In `appsettings.json` file you can add `Topics` section. This section will contain topics registrations and subscribers. For each topics you can define many subscribers as an array of strings. Here is a sample file that define 2 subscribers on each of the 2 topics:
+
+``` json
+{
+    "Topics": {
+        "topic1": [
+            "http://host.docker.internal:6000/subscriber1",
+            "http://host.docker.internal:6000/subscriber2"
+        ],
+        "topics2": [
+            "http://host.docker.internal:6000/subscriber3",
+            "http://host.docker.internal:6000/subscriber4"
+        ]
+    }
+}
+```
+
+To define a subscriber endpoint you simply have to respond to http calls. Here is the simplest .net subscriber endpoint defined using simple API:
+
+``` csharp
+var app = WebApplication.CreateBuilder(args).Build();
+
+app.MapPost("/subscriber1", () => Results.Ok());
+
+app.Run();
+```
+
+
+
 ## Building
 
 The project can be built by running `Build.ps1`.
