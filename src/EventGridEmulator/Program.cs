@@ -1,3 +1,5 @@
+using System.Net;
+using System.Security.Authentication;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.EventHandling;
 using EventGridEmulator.Network;
@@ -22,7 +24,15 @@ builder.Host.UseSerilog((context, configuration) =>
 
 builder.Services.AddOptions<TopicOptions>().BindConfiguration(string.Empty);
 builder.Services.AddSingleton<SubscriberPolicyHttpMessageHandler>();
-builder.Services.AddHttpClient(SubscriberConstants.HttpClientName, SubscriberConstants.ConfigureHttpClient).AddHttpMessageHandler<SubscriberPolicyHttpMessageHandler>();
+builder.Services.AddHttpClient(SubscriberConstants.HttpClientName, SubscriberConstants.ConfigureHttpClient)
+    .AddHttpMessageHandler<SubscriberPolicyHttpMessageHandler>()
+    .ConfigurePrimaryHttpMessageHandler(handler => new HttpClientHandler
+    {
+        ClientCertificateOptions = ClientCertificateOption.Manual,
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+        CheckCertificateRevocationList = false,
+        SslProtocols = SslProtocols.None,
+    });
 builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigureTopicOptionsCorrector>();
 builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigureTopicOptionsCancellationManager>();
 builder.Services.AddSingleton<ISubscriberCancellationTokenRegistry, SubscriberCancellationTokenRegistry>();
