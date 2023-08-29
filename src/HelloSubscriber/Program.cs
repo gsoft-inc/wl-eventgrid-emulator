@@ -14,6 +14,7 @@ builder.Host.UseSerilog((context, configuration) =>
 });
 
 var app = builder.Build();
+app.UseHttpsRedirection();
 
 app.MapPost("/webhook-200", () => Results.Ok());
 app.MapPost("/webhook-404", () => Results.NotFound());
