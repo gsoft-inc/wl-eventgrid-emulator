@@ -7,5 +7,6 @@
 
     <ItemGroup>
         <PackageReference Include="Azure.Messaging.EventGrid" Version="4.17.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
     </ItemGroup>
 </Project>
