@@ -175,6 +175,3 @@ The project can be built by running `Build.ps1`.
 ## License
 
 This code is licensed under the Apache License, Version 2.0. You may obtain a copy of this license at https://github.com/gsoft-inc/workleap-license/blob/main/LICENSE.
-
-
-I hope this helps! Let me know if you have any questions.
