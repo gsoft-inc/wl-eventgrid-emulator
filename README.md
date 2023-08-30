@@ -83,7 +83,7 @@ To use the EventGridEmulator Docker image, you can follow these steps:
    ```json
     {
         "Topics": {
-            "activities-eg": [
+            "topic1": [
                 "http://host.docker.internal:6000/webhook-200",
                 "http://host.docker.internal:6000/webhook-400",
                 "http://host.docker.internal:6000/webhook-missing"
