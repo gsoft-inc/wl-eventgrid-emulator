@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   eventgridemulator:
-    image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:pr-4
+    image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:main
     build:
       context: ./src
       dockerfile: ./EventGridEmulator/Dockerfile
