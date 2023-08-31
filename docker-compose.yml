@@ -3,15 +3,14 @@ version: '3.4'
 services:
   eventgridemulator:
     image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:pr-4
+    build:
+      context: ./src
+      dockerfile: ./EventGridEmulator/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:8080
       - KESTREL__CERTIFICATES__DEFAULT__PATH=/etc/ssl/certs/localhost.crt
       - KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key
     ports:
       - "6500:443"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
       - "~/.eventgridemulator:/etc/ssl/certs"
     security_opt:

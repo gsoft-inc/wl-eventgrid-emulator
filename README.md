@@ -2,6 +2,8 @@
 
 This Docker image provides a local emulator for **Azure Event Grid**, which can be used for testing and development purposes.
 
+> :warning: For now, the emulator only supports push notification model.
+
 ## Prerequisites
 
 Before you can use the EventGridEmulator Docker image, you need to have Docker installed on your machine. You can download Docker from the official website: https://www.docker.com/get-started
@@ -10,7 +12,7 @@ Before you can use the EventGridEmulator Docker image, you need to have Docker i
 
 To use the EventGridEmulator Docker image, you can follow these steps:
 
-1. Create a development certificate ([for more info](https://github.com/FiloSottile/mkcert)):
+1. Create a development certificate in order to allow https communication with the emulator[^1] ([for more info on mkcert used to create certificate](https://github.com/FiloSottile/mkcert)):
 
     ```powershell
     .\devtools\Install-Certificate.ps1
@@ -35,9 +37,9 @@ To use the EventGridEmulator Docker image, you can follow these steps:
     Certificate installed successfully.
     ```
 
-2. Option a) Using docker-compose file (**recommended**):
+2. Using `docker-compose` file to start and configure the container:
    
-   Create a file named `docker-compose.yaml`.
+   Create a file named `docker-compose.yaml` in the root source folder of your project.
 
     ```yaml
     version: '3.4'
@@ -60,20 +62,6 @@ To use the EventGridEmulator Docker image, you can follow these steps:
     Run docker compose:
     ```
     docker compose up
-    ```
-
-    Option b) Using Docker Cli (*not recommended*):
-
-    ```powershell
-    docker run `
-        --name eventgridemulator `
-        -e "ASPNETCORE_ENVIRONMENT=Development" `
-        -e "ASPNETCORE_URLS=https://+:443;http://+:8080" `
-        -e "KESTREL__CERTIFICATES__DEFAULT__PATH=/etc/ssl/certs/localhost.crt" `
-        -e "KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key" `
-        -p "6500:8080" `
-        -v "$env:USERPROFILE\.eventgridemulator:/etc/ssl/certs" `
-        eventgridemulator
     ```
 
    This will start the EventGridEmulator container and map port 6500 on your local machine to port 8080 in the container.
@@ -101,12 +89,13 @@ To use the EventGridEmulator Docker image, you can follow these steps:
 
 The following diagram shows how components interact with each other.
 
-
 ![](.docs/diagram-generated.svg)
 
 - Docker compose pull and start an instance of Event Grid Emulator in Docker Desktop.
 - Emulator uses ```/app/appsettings.json``` to simulate topics registrations.
 - Publisher send event to emulator via ```https://localhost:6500```.
+- Emulator will send notifications to all its subscriber's endpoint.
+  - It will apply retry policies similar to Azure Event Grid implementation.
 - Subscriber recive the event notification via ```http://host.docker.internal``` which is automatically resolved to the host ip.
 
 ## appsettings.json file format
@@ -139,6 +128,8 @@ app.MapPost("/subscriber1", () => Results.Ok());
 
 app.Run();
 ```
+
+[^1]: The emulator only support https communication to simulate real usage scenario.
 
 ## License
 

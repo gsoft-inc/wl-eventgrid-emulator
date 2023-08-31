@@ -16,6 +16,7 @@ jobs:
       - name: Docker login
         uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc #v2
         with:
+          # TODO: Replace with Docker Hub registry when available.
           registry: techplatform0scaffolding0dev0acr.azurecr.io
           username: ${{ secrets.WORKLEAP_ACR_USERNAME }}
           password: ${{ secrets.WORKLEAP_ACR_PASSWORD }}
@@ -24,6 +25,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 #v4
         with:
+          # TODO: Replace with Docker Hub registry when available.
           images: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator
           
       - name: Docker build and push
