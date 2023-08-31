@@ -5,9 +5,9 @@ VisualStudioVersion = 17.8.34004.107
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventGridEmulator", "EventGridEmulator\EventGridEmulator.csproj", "{B77D5E31-0072-441F-8F88-081E0219B7DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloPublisher", "HelloPublisher\HelloPublisher.csproj", "{FBB40946-B575-4346-A69E-2B796B9801D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher", "Samples\Publisher\Publisher.csproj", "{FBB40946-B575-4346-A69E-2B796B9801D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelloSubscriber", "HelloSubscriber\HelloSubscriber.csproj", "{ED5476A6-B2EC-45F7-B038-34B5D32496FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Subscriber", "Samples\Subscriber\Subscriber.csproj", "{ED5476A6-B2EC-45F7-B038-34B5D32496FC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventGridEmulator.Tests", "EventGridEmulator.Tests\EventGridEmulator.Tests.csproj", "{5FB0B257-612A-4312-9216-58D1D620E9A7}"
 EndProject
@@ -53,6 +53,6 @@ Global
 		{5FB0B257-612A-4312-9216-58D1D620E9A7} = {598C67D6-FE9C-4633-810E-32ED34EAE305}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1810ACD5-F279-48AD-9FAE-1322CDBB88C3}
+		SolutionGuid = {C00EAFC4-6BEE-42F7-A1F8-492F7E85CE8B}
 	EndGlobalSection
 EndGlobal

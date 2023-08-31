@@ -13,7 +13,7 @@ builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.defaults.json", optional: false, reloadOnChange: false);
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Configuration.AddEnvironmentVariables();
-builder.Configuration.AddCommandLine(args);
+
 
 // Serilog provides a more concise console logging experience with colored tokens
 builder.Host.UseSerilog((context, configuration) =>

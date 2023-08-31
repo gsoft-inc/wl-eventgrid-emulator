@@ -3,13 +3,10 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-builder.Configuration.AddEnvironmentVariables();
-builder.Configuration.AddCommandLine(args);
 
 // Serilog provides a more concise console logging experience with colored tokens
 builder.Host.UseSerilog((context, configuration) =>
 {
-    configuration.ReadFrom.Configuration(context.Configuration);
     configuration.WriteTo.Console();
 });
 

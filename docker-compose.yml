@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   eventgridemulator:
-    image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:main
+    image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:pr-4
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:8080
