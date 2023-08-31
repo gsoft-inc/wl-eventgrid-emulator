@@ -12,7 +12,7 @@ Before you can use the EventGridEmulator Docker image, you need to have Docker i
 
 To use the EventGridEmulator Docker image, you can follow these steps:
 
-1. Create a development certificate in order to allow https communication with the emulator[^1] ([for more info on mkcert used to create certificate](https://github.com/FiloSottile/mkcert)):
+1. Create a development certificate in order to allow https communication with the emulator[^1] ([for more info on mkcert used to create certificate](https://github.com/FiloSottile/mkcert)). You can use the script provided in this repo:
 
     ```powershell
     .\devtools\Install-Certificate.ps1
@@ -46,21 +46,31 @@ To use the EventGridEmulator Docker image, you can follow these steps:
 
     services:
         eventgridemulator:
-            image: eventgridemulator
+            image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:main
             environment:
-                - ASPNETCORE_ENVIRONMENT=Development
-                - ASPNETCORE_URLS=https://+:443;http://+:8080
                 - KESTREL__CERTIFICATES__DEFAULT__PATH=/etc/ssl/certs/localhost.crt
                 - KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key
             ports:
                 - "6500:443"
-            extra_hosts:
-                - "host.docker.internal:host-gateway"
             volumes:
                 - "~/.eventgridemulator:/etc/ssl/certs"
-    ``` 
-    Run docker compose:
+    
     ```
+    You may need to login to Azure Container Registry with:
+    
+    ```powershell
+    az acr login -n techplatform0scaffolding0dev0acr
+    ```
+    
+    Then run docker compose:
+    
+    ```powershell
+    docker compose pull
+    ```
+    
+    And
+    
+    ```powershell
     docker compose up
     ```
 
