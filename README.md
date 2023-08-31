@@ -4,6 +4,11 @@ This Docker image provides a local emulator for **Azure Event Grid**, which can 
 
 > :warning: For now, the emulator only supports push notification model.
 
+## Features
+- Event Grid topics endpoints `https://localhost:6500/<topic>/api/events`.
+- Push notification to subscribers endpoints defined in `/app/appsetings.json` config file on contianer image filesystem.
+- Retry policies similar to Azure implementation.
+
 ## Prerequisites
 
 Before you can use the EventGridEmulator Docker image, you need to have Docker installed on your machine. You can download Docker from the official website: https://www.docker.com/get-started
