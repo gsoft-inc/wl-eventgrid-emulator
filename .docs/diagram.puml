@@ -19,7 +19,7 @@ frame Azure {
     AzureContainerRegistry(acr, "Container Registry", "")
 }
 note top of ege
-    /app/appsetings.json
+    /app/appsettings.json
 end note
 
 pub --> ege : "https://localhost:6500"

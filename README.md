@@ -6,7 +6,7 @@ This Docker image provides a local emulator for **Azure Event Grid**, which can 
 
 ## Features
 - Event Grid topics endpoints `https://localhost:6500/<topic>/api/events`.
-- Push notification to subscribers endpoints defined in `/app/appsetings.json` config file on contianer image filesystem.
+- Push notification to subscribers endpoints defined in `/app/appsettings.json` config file on container image filesystem.
 - Retry policies similar to Azure implementation.
 
 ## Prerequisites
@@ -81,7 +81,7 @@ To use the EventGridEmulator Docker image, you can follow these steps:
 
    This will start the EventGridEmulator container and map port 6500 on your local machine to port 8080 in the container.
 
-3. Now you have to configure your subscriptions. You can use [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [VS Code](https://code.visualstudio.com/) with [Docker extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) to connect to your container file system. The configuration is `/app/appsetings.json`. Here is a sample content. We use `host.docker.internal` to access host endpoint outside the Docker container. This will resolve your host ip.
+3. Now you have to configure your subscriptions. You can use [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [VS Code](https://code.visualstudio.com/) with [Docker extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) to connect to your container file system. The configuration is `/app/appsettings.json`. Here is a sample content. We use `host.docker.internal` to access host endpoint outside the Docker container. This will resolve your host ip.
    
    ```json
     {
@@ -111,7 +111,7 @@ The following diagram shows how components interact with each other.
 - Publisher send event to emulator via ```https://localhost:6500```.
 - Emulator will send notifications to all its subscriber's endpoint.
   - It will apply retry policies similar to Azure Event Grid implementation.
-- Subscriber recive the event notification via ```http://host.docker.internal``` which is automatically resolved to the host ip.
+- Subscriber receive the event notification via ```http://host.docker.internal``` which is automatically resolved to the host ip.
 
 ## appsettings.json file format
 
