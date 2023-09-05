@@ -1,6 +1,6 @@
 namespace EventGridEmulator.Network;
 
-public class TrustingDevelopmentCertificateHttpClientHandler : HttpClientHandler
+internal sealed class TrustingDevelopmentCertificateHttpClientHandler : HttpClientHandler
 {
     private TrustingDevelopmentCertificateHttpClientHandler()
     {
