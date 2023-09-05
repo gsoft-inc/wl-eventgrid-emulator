@@ -21,9 +21,10 @@ builder.Host.UseSerilog((context, configuration) =>
 
 builder.Services.AddOptions<TopicOptions>().BindConfiguration(string.Empty);
 builder.Services.AddSingleton<SubscriberPolicyHttpMessageHandler>();
+builder.Services.AddSingleton<TrustingDevelopmentCertificateHttpClientHandler>();
 builder.Services.AddHttpClient(SubscriberConstants.HttpClientName, SubscriberConstants.ConfigureHttpClient)
     .AddHttpMessageHandler<SubscriberPolicyHttpMessageHandler>()
-    .ConfigurePrimaryHttpMessageHandler(_ => TrustingDevelopmentCertificateHttpClientHandler.Instance);
+    .ConfigurePrimaryHttpMessageHandler<TrustingDevelopmentCertificateHttpClientHandler>();
 builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigureTopicOptionsCorrector>();
 builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigureTopicOptionsCancellationManager>();
 builder.Services.AddSingleton<ISubscriberCancellationTokenRegistry, SubscriberCancellationTokenRegistry>();
