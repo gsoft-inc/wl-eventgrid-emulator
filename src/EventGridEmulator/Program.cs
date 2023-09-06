@@ -11,7 +11,6 @@ builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.defaults.json", optional: false, reloadOnChange: false);
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Configuration.AddEnvironmentVariables();
-builder.Configuration.AddCommandLine(args);
 
 // Serilog provides a more concise console logging experience with colored tokens
 builder.Host.UseSerilog((context, configuration) =>
@@ -22,7 +21,10 @@ builder.Host.UseSerilog((context, configuration) =>
 
 builder.Services.AddOptions<TopicOptions>().BindConfiguration(string.Empty);
 builder.Services.AddSingleton<SubscriberPolicyHttpMessageHandler>();
-builder.Services.AddHttpClient(SubscriberConstants.HttpClientName, SubscriberConstants.ConfigureHttpClient).AddHttpMessageHandler<SubscriberPolicyHttpMessageHandler>();
+builder.Services.AddSingleton<TrustingDevelopmentCertificateHttpClientHandler>();
+builder.Services.AddHttpClient(SubscriberConstants.HttpClientName, SubscriberConstants.ConfigureHttpClient)
+    .AddHttpMessageHandler<SubscriberPolicyHttpMessageHandler>()
+    .ConfigurePrimaryHttpMessageHandler<TrustingDevelopmentCertificateHttpClientHandler>();
 builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigureTopicOptionsCorrector>();
 builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigureTopicOptionsCancellationManager>();
 builder.Services.AddSingleton<ISubscriberCancellationTokenRegistry, SubscriberCancellationTokenRegistry>();
@@ -38,6 +40,6 @@ app.MapPost(CompositeEventHttpContextHandler.Route, CompositeEventHttpContextHan
 app.Run();
 
 // For integration testing purposes only in order to use WebApplicationFactory<TProgram>
-public partial class Program
+public abstract partial class Program
 {
 }

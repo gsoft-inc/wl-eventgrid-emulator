@@ -78,7 +78,7 @@ internal sealed class SubscriberPolicyHttpMessageHandler : PolicyHttpMessageHand
         }
         catch (HttpRequestException ex)
         {
-            this._logger.LogInformation(ex, "*** More information ***");
+            this._logger.LogDebug(ex, null);
             info.LogRequestFailed(this._logger, ex.StatusCode);
             throw;
         }

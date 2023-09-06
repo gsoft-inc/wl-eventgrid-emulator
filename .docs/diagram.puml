@@ -1,0 +1,28 @@
+@startuml diagram-generated
+
+left to right direction
+
+' https://github.com/plantuml-stdlib/Azure-PlantUML
+!include <azure/AzureCommon.puml>
+!include <azure/AzureSimplified.puml>
+!include <azure/Compute/AzureAppService.puml>
+!include <azure/Integration/AzureEventGrid.puml>
+!include <azure/Containers/AzureContainerRegistry.puml>
+frame "Host Computer" {
+	AzureAppService(pub, "Publisher", "")
+	AzureAppService(sub, "Subscriber", "")
+	frame "Docker Desktop" as docker {
+		AzureEventGrid(ege, "Event Grid Emulator", "")
+	}
+}
+frame Azure {
+    AzureContainerRegistry(acr, "Container Registry", "")
+}
+note top of ege
+    /app/appsettings.json
+end note
+
+pub --> ege : "https://localhost:6500"
+sub <-- ege : "http://host.docker.internal:6000"
+ege <-- acr : "docker pull"
+@enduml
