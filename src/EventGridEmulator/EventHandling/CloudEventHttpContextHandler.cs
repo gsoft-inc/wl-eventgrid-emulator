@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace EventGridEmulator.EventHandling;
 
-internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHander<CloudEvent>, ICloudEventHttpContextHandler
+internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHandler<CloudEvent>, ICloudEventHttpContextHandler
 {
     public CloudEventHttpContextHandler(
         IHttpClientFactory httpClientFactory,
@@ -14,5 +14,13 @@ internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHander<
         ILogger<CloudEventHttpContextHandler> logger)
         : base(httpClientFactory, cancellationTokenRegistry, options, logger)
     {
+    }
+
+    protected override void EnhanceEventData(IEnumerable<CloudEvent> cloudEvents, string topicName)
+    {
+        foreach (var @event in cloudEvents)
+        {
+            @event.Source = $"{SubscriberConstants.DefaultTopicValue}/{topicName}";
+        }
     }
 }

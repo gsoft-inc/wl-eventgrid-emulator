@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace EventGridEmulator.EventHandling;
 
-internal sealed class EventGridEventHttpContextHandler : BaseEventHttpContextHander<EventGridEvent>, IEventGridEventHttpContextHandler
+internal sealed class EventGridEventHttpContextHandler : BaseEventHttpContextHandler<EventGridEvent>, IEventGridEventHttpContextHandler
 {
     public EventGridEventHttpContextHandler(
         IHttpClientFactory httpClientFactory,
@@ -14,5 +14,13 @@ internal sealed class EventGridEventHttpContextHandler : BaseEventHttpContextHan
         ILogger<EventGridEventHttpContextHandler> logger)
         : base(httpClientFactory, cancellationTokenRegistry, options, logger)
     {
+    }
+
+    protected override void EnhanceEventData(IEnumerable<EventGridEvent> eventGridEvents, string topicName)
+    {
+        foreach (var @event in eventGridEvents)
+        {
+            @event.Topic = $"{SubscriberConstants.DefaultTopicValue}/{topicName}";
+        }
     }
 }
