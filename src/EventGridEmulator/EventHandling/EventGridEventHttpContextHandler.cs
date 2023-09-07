@@ -20,7 +20,7 @@ internal sealed class EventGridEventHttpContextHandler : BaseEventHttpContextHan
     {
         foreach (var @event in eventGridEvents)
         {
-            @event.Topic = $"{SubscriberConstants.DefaultTopicValue}/{topicName}";
+            @event.Topic = $"{SubscriberConstants.DefaultTopicValue}{topicName}";
         }
     }
 }

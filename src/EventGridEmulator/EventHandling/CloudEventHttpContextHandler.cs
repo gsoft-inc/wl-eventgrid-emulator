@@ -20,7 +20,7 @@ internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHandler
     {
         foreach (var @event in cloudEvents)
         {
-            @event.Source = $"{SubscriberConstants.DefaultTopicValue}/{topicName}";
+            @event.Source = $"{SubscriberConstants.DefaultTopicValue}{topicName}";
         }
     }
 }
