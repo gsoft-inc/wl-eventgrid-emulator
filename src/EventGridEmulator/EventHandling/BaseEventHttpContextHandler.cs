@@ -4,14 +4,14 @@ using Microsoft.Extensions.Options;
 
 namespace EventGridEmulator.EventHandling;
 
-internal abstract class BaseEventHttpContextHander<TEvent>
+internal abstract class BaseEventHttpContextHandler<TEvent>
 {
     private readonly HttpClient _httpClient;
     private readonly ISubscriberCancellationTokenRegistry _cancellationTokenRegistry;
     private readonly IOptionsMonitor<TopicOptions> _options;
     private readonly ILogger _logger;
 
-    protected BaseEventHttpContextHander(
+    protected BaseEventHttpContextHandler(
         IHttpClientFactory httpClientFactory,
         ISubscriberCancellationTokenRegistry cancellationTokenRegistry,
         IOptionsMonitor<TopicOptions> options,
@@ -45,6 +45,7 @@ internal abstract class BaseEventHttpContextHander<TEvent>
         foreach (var subscriber in subscribers)
         {
             var cancellationToken = this._cancellationTokenRegistry.Get(topic, subscriber);
+            this.EnhanceEventData(events, topic);
             _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber, events, cancellationToken);
         }
 
@@ -76,5 +77,9 @@ internal abstract class BaseEventHttpContextHander<TEvent>
         {
             info.LogRequestFailed(this._logger, ex);
         }
+    }
+    
+    protected virtual void EnhanceEventData(IEnumerable<TEvent> events, string topicName)
+    {
     }
 }

@@ -5,6 +5,8 @@ namespace EventGridEmulator.Network;
 internal static class SubscriberConstants
 {
     public const string HttpClientName = "subscribers";
+    
+    public const string DefaultTopicValue = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.EventGrid/topics/";
 
     public static readonly HashSet<HttpStatusCode> NonRetriableStatusCodes = new HashSet<HttpStatusCode>
     {
