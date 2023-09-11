@@ -9,6 +9,7 @@ namespace EventGridEmulator.Configuration;
 
 internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, IDisposable
 {
+    private readonly object _lockObject = new object();
     private readonly IServer _server;
     private readonly ILogger<ApplicationLifetimeLoggingHostedService> _logger;
     private readonly IOptionsMonitor<TopicOptions> _options;
@@ -16,6 +17,7 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
     private readonly CancellationTokenRegistration _stoppingHandle;
     private readonly CancellationTokenRegistration _stoppedHandle;
     private readonly IDisposable? _optionsHandle;
+    private TopicOptions? _previousOptions;
     private int _optionsChangeCount;
 
     public ApplicationLifetimeLoggingHostedService(
@@ -31,7 +33,8 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
         this._startedHandle = lifetime.ApplicationStarted.Register(OnApplicationStarted, this);
         this._stoppingHandle = lifetime.ApplicationStopping.Register(OnApplicationStopping, this);
         this._stoppedHandle = lifetime.ApplicationStopped.Register(OnApplicationStopped, this);
-        this._optionsHandle = options.OnChangeDelayed(this.OnOptionsChanged);
+        this._optionsHandle = options.OnChange(this.OnOptionsChanged);
+        this._previousOptions = null;
         this._optionsChangeCount = 0;
     }
 
@@ -66,32 +69,41 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
     [SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "We use two well-defined static message templates")]
     private void OnOptionsChanged(TopicOptions options)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine();
-
-        var linesAdded = 0;
-        foreach (var (topic, subscribers) in options.Topics)
+        lock (this._lockObject)
         {
-            if (linesAdded > 0)
+            var optionsHaveChanged = this._previousOptions == null || !this._previousOptions.Equals(options);
+            if (optionsHaveChanged)
             {
+                var sb = new StringBuilder();
                 sb.AppendLine();
+
+                var linesAdded = 0;
+                foreach (var (topic, subscribers) in options.Topics)
+                {
+                    if (linesAdded > 0)
+                    {
+                        sb.AppendLine();
+                    }
+
+                    sb.Append(" - ").Append(topic).Append(": ").AppendJoin(", ", subscribers);
+                    linesAdded++;
+                }
+
+                if (linesAdded == 0)
+                {
+                    sb.Append(" - Configuration is empty");
+                }
+
+                this._optionsChangeCount++;
+                var messageTemplate = this._optionsChangeCount == 1
+                    ? "Loaded topics and subscribers:{Configuration}"
+                    : "Reloaded topics and subscribers:{Configuration}";
+
+                this._logger.LogInformation(messageTemplate, sb.ToString());
             }
 
-            sb.Append(" - ").Append(topic).Append(": ").AppendJoin(", ", subscribers);
-            linesAdded++;
+            this._previousOptions = options;
         }
-
-        if (linesAdded == 0)
-        {
-            sb.Append("Nothing");
-        }
-
-        this._optionsChangeCount++;
-        var messageTemplate = this._optionsChangeCount == 1
-            ? "Loaded topics and subscribers:{Configuration}"
-            : "Reloaded topics and subscribers:{Configuration}";
-
-        this._logger.LogInformation(messageTemplate, sb.ToString());
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
