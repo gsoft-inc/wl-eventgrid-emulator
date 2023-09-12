@@ -67,14 +67,17 @@ internal sealed class TopicOptions
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "This is a DTO, also we don't plan on storing this in a hash table.")]
     public override int GetHashCode()
     {
-        var hash = 17;
-
-        foreach (var pair in this.Topics)
+        unchecked
         {
-            hash = hash * 23 + pair.Key.GetHashCode();
-            hash = hash * 23 + (pair.Value != null ? pair.Value.GetHashCode() : 0);
-        }
+            var hash = 17;
 
-        return hash;
+            foreach (var pair in this.Topics)
+            {
+                hash = hash * 23 + pair.Key.GetHashCode();
+                hash = hash * 23 + (pair.Value != null ? pair.Value.GetHashCode() : 0);
+            }
+
+            return hash;
+        }
     }
 }
