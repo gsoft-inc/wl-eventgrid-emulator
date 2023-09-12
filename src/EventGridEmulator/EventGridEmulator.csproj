@@ -14,5 +14,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="EventGridEmulator.Tests" />
     <Content Include="..\.dockerignore" Link=".dockerignore" />
+
+    <!-- This appsettings.json will never be shipped in the released product -->
+    <!-- It must be manually provided by the user, but we can use this one when debugging in an IDE -->
+    <Content Remove="appsettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Condition=" '$(Configuration)' != 'Debug' " />
   </ItemGroup>
 </Project>

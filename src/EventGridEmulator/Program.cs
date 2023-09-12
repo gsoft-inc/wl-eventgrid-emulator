@@ -32,6 +32,7 @@ builder.Services.AddSingleton<IEventGridEventHttpContextHandler, EventGridEventH
 builder.Services.AddSingleton<ICloudEventHttpContextHandler, CloudEventHttpContextHandler>();
 builder.Services.AddSingleton<CompositeEventHttpContextHandler>();
 builder.Services.AddHostedService<ApplicationLifetimeLoggingHostedService>();
+builder.Services.AddHostedService<PeriodicConfigurationReloadHostedService>();
 
 var app = builder.Build();
 
