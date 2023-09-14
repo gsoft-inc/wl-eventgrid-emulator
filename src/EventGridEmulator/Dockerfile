@@ -4,7 +4,6 @@ EXPOSE 8080
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 ENV DOTNET_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:8080;https://+:443
-ENV RUNS_IN_CONTAINER=true
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS publish
 WORKDIR /src

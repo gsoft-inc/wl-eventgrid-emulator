@@ -4,6 +4,10 @@ using EventGridEmulator.Network;
 using Microsoft.Extensions.Options;
 using Serilog;
 
+// Disable automatic propagation of activity context (telemetry) between the publisher and the subscribers
+// This usually happens through HTTP headers when using HttpClient (https://stackoverflow.com/q/72277304/825695)
+AppContext.SetSwitch("System.Net.Http.EnableActivityPropagation", false);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // The intended way for consumers is to provide their own appsettings.json through Docker volumes

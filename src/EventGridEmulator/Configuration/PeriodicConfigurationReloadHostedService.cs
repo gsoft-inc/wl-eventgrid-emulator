@@ -13,7 +13,8 @@ internal sealed class PeriodicConfigurationReloadHostedService : IHostedService
     {
         // .NET appsettings.json "hot reload" doesn't work when the JSON file is mounted as a volume in a Docker container.
         // That's why we need to manually trigger the reload periodically, to detect if the user has changed the configuration.
-        var runsInContainer = Environment.GetEnvironmentVariable("RUNS_IN_CONTAINER") == "true";
+        // https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables#dotnet_running_in_container-and-dotnet_running_in_containers
+        var runsInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") is "1" or "true";
         if (runsInContainer)
         {
             _ = this.PeriodicallyReloadConfigurationAsync(cancellationToken);
