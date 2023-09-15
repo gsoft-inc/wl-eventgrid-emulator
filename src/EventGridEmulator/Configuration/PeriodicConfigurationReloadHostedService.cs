@@ -3,10 +3,12 @@
 internal sealed class PeriodicConfigurationReloadHostedService : IHostedService
 {
     private readonly IConfigurationRoot _configuration;
+    private readonly ILogger<PeriodicConfigurationReloadHostedService> _logger;
 
-    public PeriodicConfigurationReloadHostedService(IConfiguration configuration)
+    public PeriodicConfigurationReloadHostedService(IConfiguration configuration, ILogger<PeriodicConfigurationReloadHostedService> logger)
     {
         this._configuration = (IConfigurationRoot)configuration;
+        this._logger = logger;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -25,13 +27,29 @@ internal sealed class PeriodicConfigurationReloadHostedService : IHostedService
 
     private async Task PeriodicallyReloadConfigurationAsync(CancellationToken cancellationToken)
     {
+        var isConfigurationMalformed = false;
+
         try
         {
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
 
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
-                this._configuration.Reload();
+                try
+                {
+                    this._configuration.Reload();
+
+                    isConfigurationMalformed = false;
+                }
+                catch (InvalidDataException)
+                {
+                    if (!isConfigurationMalformed)
+                    {
+                        this._logger.LogWarning("The configuration file is malformed and could not be reloaded.");
+                    }
+
+                    isConfigurationMalformed = true;
+                }
             }
         }
         catch (OperationCanceledException)
