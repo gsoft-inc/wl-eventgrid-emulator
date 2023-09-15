@@ -1,150 +1,91 @@
 # Workleap Azure Event Grid Emulator
 
-This Docker image provides a local emulator for **Azure Event Grid**, which can be used for testing and development purposes.
+This is an open source emulator for [Azure Event Grid](https://learn.microsoft.com/en-us/azure/event-grid/overview) that supports only the [push delivery](https://learn.microsoft.com/en-us/azure/event-grid/push-delivery-overview) model. Based on ASP.NET Core, this emulator provides a cross-platform experience for developers wanting to try Azure Event Grid easily in a local environment without having to deploy to Azure.
 
-> :warning: For now, the emulator only supports push notification model.
+This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Microsoft.
 
 ## Features
-- Event Grid topics endpoints `https://localhost:6500/<topic>/api/events`.
-- Push notification to subscribers endpoints defined in `/app/appsettings.json` config file on container image filesystem.
-- Retry policies similar to Azure implementation.
+
+- Support for multiple Event Grid topics by sending events to `http://127.0.0.1:6500/<topic-name>/api/events`.
+- Push delivery to configured webhooks defined in the emulator configuration file (more details below).
+- Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
+- Ability to add and remove topics and webhooks at runtime without having to restart the emulator.
+- As the emulator is built on top of ASP.NET Core, you can follow this [Microsoft documentation](https://learn.microsoft.com/en-us/aspnet/core/security/docker-compose-https) to run on HTTPS.
 
 ## Prerequisites
 
-Before you can use the EventGridEmulator Docker image, you need to have Docker installed on your machine. You can download Docker from the official website: https://www.docker.com/get-started
+You must have [Docker](https://www.docker.com/get-started/) installed. This Event Grid emulator is only distributed as a Docker image.
 
 ## Getting started
 
-To use the EventGridEmulator Docker image, you can follow these steps:
+The first step is to **create a configuration file** for the emulator to know the topics, and for each topic, the webhooks to call when an event is published.
+Create a configuration file named `appsettings.json` somewhere on your computer, for instance: `C:\eventgridemulator\appsettings.json`.
 
-1. Create a development certificate in order to allow https communication with the emulator[^1] ([for more info on mkcert used to create certificate](https://github.com/FiloSottile/mkcert)). You can use the script provided in this repo:
+It should look like this:
 
-    ```powershell
-    .\devtools\Install-Certificate.ps1
-    ```
-
-    You should see something like:
-    ```
-    Installing localhost certificate...
-    The local CA is already installed in the system trust store! 👍
-
-
-    Created a new certificate valid for the following names 📜
-    - "localhost"
-    - "127.0.0.1"
-    - "::1"
-    - "host.docker.internal"
-
-    The certificate is at "C:\Users\<user>\.eventgridemulator\localhost.crt" and the key at "C:\Users\<user>\.eventgridemulator\localhost.key" ✅
-
-    It will expire on <dd mmmm yy> 📅
-
-    Certificate installed successfully.
-    ```
-
-2. Using `docker-compose` file to start and configure the container:
-   
-   Create a file named `docker-compose.yaml` in the root source folder of your project.
-
-    ```yaml
-    version: '3.4'
-
-    services:
-        eventgridemulator:
-            image: techplatform0scaffolding0dev0acr.azurecr.io/eventgrid-emulator:main
-            environment:
-                - KESTREL__CERTIFICATES__DEFAULT__PATH=/etc/ssl/certs/localhost.crt
-                - KESTREL__CERTIFICATES__DEFAULT__KEYPATH=/etc/ssl/certs/localhost.key
-            ports:
-                - "6500:443"
-            volumes:
-                - "~/.eventgridemulator:/etc/ssl/certs"
-    
-    ```
-    You may need to login to Azure Container Registry with:
-    
-    ```powershell
-    az acr login -n techplatform0scaffolding0dev0acr
-    ```
-    
-    Then run docker compose:
-    
-    ```powershell
-    docker compose pull
-    ```
-    
-    And
-    
-    ```powershell
-    docker compose up
-    ```
-
-   This will start the EventGridEmulator container and map port 6500 on your local machine to port 8080 in the container.
-
-3. Now you have to configure your subscriptions. You can use [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [VS Code](https://code.visualstudio.com/) with [Docker extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) to connect to your container file system. The configuration is `/app/appsettings.json`. Here is a sample content. We use `host.docker.internal` to access host endpoint outside the Docker container. This will resolve your host ip.
-   
-   ```json
-    {
-        "Topics": {
-            "topic1": [
-                "http://host.docker.internal:6000/webhook-200",
-                "http://host.docker.internal:6000/webhook-400",
-                "http://host.docker.internal:6000/webhook-missing"
-            ],
-            "topic2": [
-                "http://host.docker.internal:6000/webhook-404",
-                "http://host.docker.internal:6000/webhook-401",
-                "http://host.docker.internal:6000/webhook-slow-200"
-            ]
-        }
-    }
-   ```
-
-## How it works
-
-The following diagram shows how components interact with each other.
-
-![](.docs/diagram-generated.svg)
-
-- Docker compose pull and start an instance of Event Grid Emulator in Docker Desktop.
-- Emulator uses ```/app/appsettings.json``` to simulate topics registrations.
-- Publisher send event to emulator via ```https://localhost:6500```.
-- Emulator will send notifications to all its subscriber's endpoint.
-  - It will apply retry policies similar to Azure Event Grid implementation.
-- Subscriber receive the event notification via ```http://host.docker.internal``` which is automatically resolved to the host ip.
-
-## appsettings.json file format
-
-Here is the schema of the `appsettings.json` file.
-
-In `appsettings.json` file you can add `Topics` section. This section will contain topics registrations and subscribers. For each topics you can define many subscribers as an array of strings. Here is a sample file that define 2 subscribers on each of the 2 topics:
-
-``` json
+```json
 {
-    "Topics": {
-        "topic1": [
-            "http://host.docker.internal:6000/subscriber1",
-            "http://host.docker.internal:6000/subscriber2"
-        ],
-        "topics2": [
-            "http://host.docker.internal:6000/subscriber3",
-            "http://host.docker.internal:6000/subscriber4"
-        ]
-    }
+  "Topics": {
+    "topic1": [
+      "https://host.docker.internal:5122/my-webhook",
+      "http://host.docker.internal:7221/eventgrid"
+    ],
+    "topic2": [
+      "https://mydockercontainer:5122/eventgrid/domainevents",
+    ]
+  }
 }
 ```
 
-To define a subscriber endpoint you simply have to respond to http calls. Here is the simplest .net subscriber endpoint defined using simple API:
+In this example, we have two topics, `topic1` and `topic2`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topic1/api/events`, the emulator would forward the events to `https://host.docker.internal:5122/my-webhook` and `http://host.docker.internal:7221/eventgrid` on your host machine. As the emulator runs on Docker, you must use the `host.docker.internal` host whenever you want to call a webhook on your host machine.
 
-``` csharp
-var app = WebApplication.CreateBuilder(args).Build();
+**Run the Event Grid emulator with docker run**
 
-app.MapPost("/subscriber1", () => Results.Ok());
-
-app.Run();
+```bash
+docker run -p 6500:6500 -v "C:/eventgridemulator/appsettings.json:/app/appsettings.json" --add-host=host.docker.internal:host-gateway workleap/eventgridemulator
 ```
 
-[^1]: The emulator only support https communication to simulate real usage scenario.
+> `--add-host=host.docker.internal:host-gateway` is required for the emulator to be able to reach the webhooks on the host machine.
+
+**Run the Event Grid emulator with Docker Compose**
+
+Create a file named `docker-compose.yaml` and add this content:
+
+```yaml
+version: '3'
+
+services:
+  eventgridemulator:
+    image: workleap/eventgridemulator:latest
+    ports:
+      - "6500:6500"
+    volumes:
+      - "C:/eventgridemulator/appsettings.json:/app/appsettings.json"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+```
+
+From the directory in which the file resides, run the `docker compose up` command.
+
+**Sending and receiving events**
+
+Now that the emulator is running, you can send events to it and receive them in your webhooks. If you're using C#, follow [these steps from the Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme?view=azure-dotnet):
+
+```csharp
+// Change "my-topic" to the name of your topic.
+// The authentication mechanism is actually ignored by the emulator.
+// If you must provide a TokenCredential instead of an access key, the emulator must be running on HTTPS.
+var client = new EventGridPublisherClient(
+    new Uri("http://127.0.0.1:6500/my-topic/api/events"),
+    new AzureKeyCredential("fakeAccessKey"));
+```
+
+## Additional information
+
+- As mentioned above, the `EventGridPublisherClient` requires an authentication mechanism, but the actual value is ignored by the emulator. You can use any value you want.
+- Using `TokenCredential` (Azure Identity) instead of an access key requires the emulator to be running on HTTPS. The `EventGridPublisherClient` will throw an exception otherwise.
+- The Event Grid validation mechanism is not implemented in the emulator. You can send events without having to validate your webhooks. This is because the emulator is not meant to be used in a production environment.
+- The emulator tries to replicate the original Event Grid behavior when it comes to retry and HTTP header values. However, it is not guaranteed to be 100% accurate. If you find a bug, please open an issue.
 
 ## License
 
