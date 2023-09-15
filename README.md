@@ -86,6 +86,7 @@ var client = new EventGridPublisherClient(
 - Using `TokenCredential` (Azure Identity) instead of an access key requires the emulator to be running on HTTPS. The `EventGridPublisherClient` will throw an exception otherwise.
 - The Event Grid validation mechanism is not implemented in the emulator. You can send events without having to validate your webhooks. This is because the emulator is not meant to be used in a production environment.
 - The emulator tries to replicate the original Event Grid behavior when it comes to retry and HTTP header values. However, it is not guaranteed to be 100% accurate. If you find a bug, please open an issue.
+- There's no persistence layer in the emulator, the messages are stored in memory. If you restart the emulator, all pending messages will be lost.
 
 ## License
 
