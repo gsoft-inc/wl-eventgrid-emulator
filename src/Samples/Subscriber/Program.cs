@@ -1,23 +1,12 @@
-using Serilog;
+using Azure.Messaging.EventGrid;
 
-var builder = WebApplication.CreateBuilder(args);
+var app = WebApplication.CreateBuilder(args).Build();
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-// Serilog provides a more concise console logging experience with colored tokens
-builder.Host.UseSerilog((context, configuration) =>
-{
-    configuration.WriteTo.Console();
-});
-
-var app = builder.Build();
-app.UseHttpsRedirection();
-
-app.MapPost("/webhook-200", () => Results.Ok());
-app.MapPost("/webhook-404", () => Results.NotFound());
-app.MapPost("/webhook-400", () => Results.BadRequest());
-app.MapPost("/webhook-401", () => Results.Unauthorized());
-app.MapPost("/webhook-slow-200", async (CancellationToken cancellationToken) =>
+app.MapPost("/webhook-200", (EventGridEvent[] events) => Results.Ok());
+app.MapPost("/webhook-404", (EventGridEvent[] events) => Results.NotFound());
+app.MapPost("/webhook-400", (EventGridEvent[] events) => Results.BadRequest());
+app.MapPost("/webhook-401", (EventGridEvent[] events) => Results.Unauthorized());
+app.MapPost("/webhook-slow-200", async (EventGridEvent[] events, CancellationToken cancellationToken) =>
 {
     try
     {

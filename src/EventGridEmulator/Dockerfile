@@ -1,9 +1,9 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine AS base
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 6500
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=true
 ENV DOTNET_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:8080;https://+:443
+ENV ASPNETCORE_URLS=http://+:6500
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS publish
 WORKDIR /src
