@@ -4,11 +4,13 @@
   "labels": ["renovate"],
   "extends": [
     "config:base",
-    ":rebaseStalePrs"
+    ":rebaseStalePrs",
+    "docker:disableMajor"
   ],
   "enabledManagers": [
-    "github-actions",
-    "nuget"
+    "nuget",
+    "dockerfile",
+    "github-actions"
   ],
   "stabilityDays": 3,
   "prHourlyLimit": 0,
@@ -16,24 +18,17 @@
   "branchConcurrentLimit": 0,
   "dependencyDashboard": false,
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "nuget": {
+    "extends": [":disableMajorUpdates"]
+  },
   "packageRules": [
     {
       "matchManagers": ["nuget"],
-      "excludePackagePatterns": ["^Microsoft\\.Extensions\\.", "^System\\.", "^dotnet-sdk$"],
       "groupName": "NuGet dependencies"
     },
     {
-      "matchManagers": ["nuget"],
-      "matchPackagePatterns": ["^Microsoft\\.Extensions\\.", "^System\\."],
-      "groupName": "Ignored NuGet dependencies",
-      "description": "These packages are usually set to a user-defined minimal supported version such as 6.0.0 for .NET 6, and they are overriden by consuming applications",
-      "enabled": false
-    },
-    {
-      "matchPackageNames": ["dotnet-sdk"],
-      "groupName": "Dotnet SDK",
-      "description": "Only update patch and minor for the dotnet SDK version within the global.json",
-      "extends": [":disableMajorUpdates"]
+      "matchManagers": ["dockerfile"],
+      "groupName": "Docker"
     },
     {
       "matchManagers": ["github-actions"],
