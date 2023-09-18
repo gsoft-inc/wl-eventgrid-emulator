@@ -15,8 +15,8 @@ jobs:
       - name: Docker login
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.WL_DOCKERHUB_USERNAME }}
-          password: ${{ secrets.WL_DOCKERHUB_TOKEN }}
+          username: ${{ secrets.WORKLEAP_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.WORKLEAP_DOCKERHUB_TOKEN }}
 
       - name: Docker metadata
         id: meta
