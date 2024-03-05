@@ -1,4 +1,4 @@
-﻿using Azure.Messaging;
+using Azure.Messaging;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 using Microsoft.Extensions.Options;
@@ -11,8 +11,9 @@ internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHandler
         IHttpClientFactory httpClientFactory,
         ISubscriberCancellationTokenRegistry cancellationTokenRegistry,
         IOptionsMonitor<TopicOptions> options,
+        TopicSubscribers<CloudEvent> queue,
         ILogger<CloudEventHttpContextHandler> logger)
-        : base(httpClientFactory, cancellationTokenRegistry, options, logger)
+        : base(httpClientFactory, cancellationTokenRegistry, options, queue, logger)
     {
     }
 

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace EventGridEmulator.Configuration;
 
@@ -22,6 +22,39 @@ internal sealed class TopicOptions
     }
 
     public Dictionary<string, string[]> Topics { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+
+    public IEnumerable<PushSubscriber> GetPushSubscribers(string topic)
+    {
+        if (!this.Topics.TryGetValue(topic, out var subscribers))
+        {
+            yield break;
+        }
+
+        foreach (var value in subscribers)
+        {
+            if (Uri.TryCreate(value, UriKind.Absolute, out var url) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps))
+            {
+                yield return new PushSubscriber(url.OriginalString);
+            }
+        }
+    }
+    
+    public IEnumerable<PullSubscriber> GetPullSubscribers(string topic)
+    {
+        if (!this.Topics.TryGetValue(topic, out var subscribers))
+        {
+            yield break;
+        }
+
+        foreach (var value in subscribers)
+        {
+            // pull://subscriptionName
+            if (Uri.TryCreate(value, UriKind.Absolute, out var url) && url.Scheme == "pull")
+            {
+                yield return new PullSubscriber(url.Host);
+            }
+        }
+    }
 
     public override bool Equals(object? obj)
     {
@@ -81,3 +114,7 @@ internal sealed class TopicOptions
         }
     }
 }
+
+internal sealed record PushSubscriber(string Uri);
+
+internal sealed record PullSubscriber(string SubscriptionName);

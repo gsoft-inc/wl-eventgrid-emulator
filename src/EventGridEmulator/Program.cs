@@ -1,8 +1,11 @@
+using Azure.Messaging;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.EventHandling;
 using EventGridEmulator.Network;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Serilog;
+using System.Text.Json.Serialization;
 
 // Disable automatic propagation of activity context (telemetry) between the publisher and the subscribers
 // This usually happens through HTTP headers when using HttpClient (https://stackoverflow.com/q/72277304/825695)
@@ -35,6 +38,7 @@ builder.Services.AddSingleton<ISubscriberCancellationTokenRegistry, SubscriberCa
 builder.Services.AddSingleton<IEventGridEventHttpContextHandler, EventGridEventHttpContextHandler>();
 builder.Services.AddSingleton<ICloudEventHttpContextHandler, CloudEventHttpContextHandler>();
 builder.Services.AddSingleton<CompositeEventHttpContextHandler>();
+builder.Services.AddSingleton(typeof(TopicSubscribers<>));
 builder.Services.AddHostedService<ApplicationLifetimeLoggingHostedService>();
 builder.Services.AddHostedService<PeriodicConfigurationReloadHostedService>();
 
@@ -42,7 +46,70 @@ var app = builder.Build();
 
 app.MapPost(CompositeEventHttpContextHandler.Route, CompositeEventHttpContextHandler.HandleAsync);
 
+// TODO Move somewhere else
+app.MapPost("topics/{topic}:publish", async (HttpContext context, [FromRoute] string topic, [FromServices] CompositeEventHttpContextHandler handler) =>
+{
+    await CompositeEventHttpContextHandler.HandleAsync(context, topic, handler);
+    return Results.Ok(new object());
+});
+app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:receive", async (string topic, string subscription, CancellationToken cancellationToken, [FromServices] TopicSubscribers<CloudEvent> events) =>
+{
+    var result = await events.GetEventAsync(topic, subscription, cancellationToken);
+    return Results.Ok(new { value = new[] { new { brokerProperties = new { deliveryCount = 1, lockToken = result.LockToken }, @event = result.Item } } });
+});
+app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:acknowledge", (string topic, string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events) =>
+{
+    var succeededLockTokens = new List<string>();
+    var failedLockTokens = new List<FailedLockToken>();
+    if (data?.LockTokens is not null)
+    {
+        foreach (var token in data.LockTokens)
+        {
+            if (token is null)
+            {
+                continue;
+            }
+
+            if (events.TryDeleteEvent(topic, subscription, token))
+            {
+                succeededLockTokens.Add(token);
+            }
+            else
+            {
+                failedLockTokens.Add(new() { LockToken = token, Error = new() { Message = "invalid token" } });
+            }
+        }
+    }
+
+    return Results.Ok(new
+    {
+        failedLockTokens,
+        succeededLockTokens,
+    });
+});
+
 app.Run();
+
+internal sealed class AcknowledgeData
+{
+    public string?[]? LockTokens { get; set; }
+}
+
+internal sealed class FailedLockToken
+{
+    public string? LockToken { get; set; }
+
+    public ResponseError? Error { get; set; }
+}
+
+internal sealed class ResponseError
+{
+    [JsonPropertyName("code")]
+    public string? Code { get; set; }
+
+    [JsonPropertyName("message")]
+    public string? Message { get; set; }
+}
 
 // For integration testing purposes only in order to use WebApplicationFactory<TProgram>
 public abstract partial class Program

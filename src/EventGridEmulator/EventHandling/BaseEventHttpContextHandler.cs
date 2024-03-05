@@ -1,4 +1,4 @@
-﻿using EventGridEmulator.Configuration;
+using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 using Microsoft.Extensions.Options;
 
@@ -9,17 +9,20 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
     private readonly HttpClient _httpClient;
     private readonly ISubscriberCancellationTokenRegistry _cancellationTokenRegistry;
     private readonly IOptionsMonitor<TopicOptions> _options;
+    private readonly TopicSubscribers<TEvent> _eventQueue;
     private readonly ILogger _logger;
 
     protected BaseEventHttpContextHandler(
         IHttpClientFactory httpClientFactory,
         ISubscriberCancellationTokenRegistry cancellationTokenRegistry,
         IOptionsMonitor<TopicOptions> options,
+        TopicSubscribers<TEvent> eventQueue,
         ILogger logger)
     {
         this._httpClient = httpClientFactory.CreateClient(SubscriberConstants.HttpClientName);
         this._cancellationTokenRegistry = cancellationTokenRegistry;
         this._options = options;
+        this._eventQueue = eventQueue;
         this._logger = logger;
     }
 
@@ -31,22 +34,23 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
 
     private async Task<IResult> HandleInternalAsync(HttpContext context, string topic)
     {
-        if (!this._options.CurrentValue.Topics.TryGetValue(topic, out var subscribers))
-        {
-            return Results.Ok();
-        }
-
         var events = await EventsSerializer.DeserializeEventsAsync<TEvent>(context);
         if (events == null)
         {
             return Results.BadRequest();
         }
 
-        foreach (var subscriber in subscribers)
+        var pushSubscriber = this._options.CurrentValue.GetPushSubscribers(topic);
+        foreach (var subscriber in pushSubscriber)
         {
-            var cancellationToken = this._cancellationTokenRegistry.Get(topic, subscriber);
+            var cancellationToken = this._cancellationTokenRegistry.Get(topic, subscriber.Uri);
             this.EnhanceEventData(events, topic);
-            _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber, events, cancellationToken);
+            _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber.Uri, events, cancellationToken);
+        }
+
+        foreach (var subscriber in this._options.CurrentValue.GetPullSubscribers(topic))
+        {
+            this._eventQueue.AddEvent(topic, subscriber.SubscriptionName, events);
         }
 
         return Results.Ok();
@@ -78,7 +82,7 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
             info.LogRequestFailed(this._logger, ex);
         }
     }
-    
+
     protected virtual void EnhanceEventData(IEnumerable<TEvent> events, string topicName)
     {
     }
