@@ -6,6 +6,8 @@ namespace EventGridEmulator.EventHandling;
 
 internal sealed class TopicSubscribers<T>
 {
+    // For each topics, we create a list of subscribers.
+    // In subscription data, they contain the items in queue. Waiting for acknowledge, release, reject
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionData>> _subscriptions = new(StringComparer.OrdinalIgnoreCase);
 
     public void AddEvent(string topicName, string subscriptionName, T[] events)
@@ -41,11 +43,15 @@ internal sealed class TopicSubscribers<T>
         return subscriptions.GetOrAdd(subscriptionName, _ => new());
     }
 
+    // calling the subscr
     private sealed class SubscriptionData
     {
+        // queue of items
         private readonly Channel<T> _queue;
+        // the string of lock tokens associated with event
         private readonly ConcurrentDictionary<string, T> _inFlightItems;
 
+        // incremented int
         private long _lockToken;
 
         public SubscriptionData()
@@ -71,7 +77,7 @@ internal sealed class TopicSubscribers<T>
 
         public bool ReleaseItem(string lockToken)
         {
-            if (!this._inFlightItems.TryRemove(lockToken, out var item))
+            if (this._inFlightItems.TryRemove(lockToken, out var item))
             {
                 this.AddItem(item!);
                 return true;

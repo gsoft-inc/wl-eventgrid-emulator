@@ -52,11 +52,13 @@ app.MapPost("topics/{topic}:publish", async (HttpContext context, [FromRoute] st
     await CompositeEventHttpContextHandler.HandleAsync(context, topic, handler);
     return Results.Ok(new object());
 });
+// TODO Move somewhere else
 app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:receive", async (string topic, string subscription, CancellationToken cancellationToken, [FromServices] TopicSubscribers<CloudEvent> events) =>
 {
     var result = await events.GetEventAsync(topic, subscription, cancellationToken);
     return Results.Ok(new { value = new[] { new { brokerProperties = new { deliveryCount = 1, lockToken = result.LockToken }, @event = result.Item } } });
 });
+// TODO Move somewhere else
 app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:acknowledge", (string topic, string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events) =>
 {
     var succeededLockTokens = new List<string>();
@@ -87,6 +89,7 @@ app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:acknowledge", (str
         succeededLockTokens,
     });
 });
+// TODO Move somewhere else
 app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:release", (string topic, string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events) =>
 {
     var succeededLockTokens = new List<string>();
@@ -117,7 +120,7 @@ app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:release", (string 
         succeededLockTokens,
     });
 });
-
+// TODO Move somewhere else
 // We don't support moving a message to the DLQ, so the logic is similar to acknowledge
 app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:reject", (string topic, string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events) =>
 {
@@ -152,11 +155,13 @@ app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:reject", (string t
 
 app.Run();
 
+// TODO Move somewhere else
 internal sealed class AcknowledgeData
 {
     public string?[]? LockTokens { get; set; }
 }
 
+// TODO Move somewhere else
 internal sealed class FailedLockToken
 {
     public string? LockToken { get; set; }
@@ -164,6 +169,7 @@ internal sealed class FailedLockToken
     public ResponseError? Error { get; set; }
 }
 
+// TODO Move somewhere else
 internal sealed class ResponseError
 {
     [JsonPropertyName("code")]
