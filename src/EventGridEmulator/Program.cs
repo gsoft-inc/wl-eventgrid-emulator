@@ -87,6 +87,68 @@ app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:acknowledge", (str
         succeededLockTokens,
     });
 });
+app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:release", (string topic, string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events) =>
+{
+    var succeededLockTokens = new List<string>();
+    var failedLockTokens = new List<FailedLockToken>();
+    if (data?.LockTokens is not null)
+    {
+        foreach (var token in data.LockTokens)
+        {
+            if (token is null)
+            {
+                continue;
+            }
+
+            if (events.TryReleaseEvent(topic, subscription, token))
+            {
+                succeededLockTokens.Add(token);
+            }
+            else
+            {
+                failedLockTokens.Add(new() { LockToken = token, Error = new() { Message = "invalid token" } });
+            }
+        }
+    }
+
+    return Results.Ok(new
+    {
+        failedLockTokens,
+        succeededLockTokens,
+    });
+});
+
+// We don't support moving a message to the DLQ, so the logic is similar to acknowledge
+app.MapPost("topics/{topic}/eventsubscriptions/{subscription}:reject", (string topic, string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events) =>
+{
+    var succeededLockTokens = new List<string>();
+    var failedLockTokens = new List<FailedLockToken>();
+    if (data?.LockTokens is not null)
+    {
+        foreach (var token in data.LockTokens)
+        {
+            if (token is null)
+            {
+                continue;
+            }
+
+            if (events.TryDeleteEvent(topic, subscription, token))
+            {
+                succeededLockTokens.Add(token);
+            }
+            else
+            {
+                failedLockTokens.Add(new() { LockToken = token, Error = new() { Message = "invalid token" } });
+            }
+        }
+    }
+
+    return Results.Ok(new
+    {
+        failedLockTokens,
+        succeededLockTokens,
+    });
+});
 
 app.Run();
 
