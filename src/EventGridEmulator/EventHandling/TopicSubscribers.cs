@@ -29,6 +29,12 @@ internal sealed class TopicSubscribers<T>
         return subscription.RemoveItem(lockToken);
     }
 
+    public bool TryReleaseEvent(string topicName, string subscriptionName, string lockToken)
+    {
+        var subscription = this.GetSubscriptionInfo(topicName, subscriptionName);
+        return subscription.ReleaseItem(lockToken);
+    }
+
     private SubscriptionData GetSubscriptionInfo(string topicName, string subscriptionName)
     {
         var subscriptions = this._subscriptions.GetOrAdd(topicName, _ => new ConcurrentDictionary<string, SubscriptionData>(StringComparer.OrdinalIgnoreCase));
@@ -61,6 +67,17 @@ internal sealed class TopicSubscribers<T>
         public bool RemoveItem(string lockToken)
         {
             return this._inFlightItems.TryRemove(lockToken, out _);
+        }
+
+        public bool ReleaseItem(string lockToken)
+        {
+            if (!this._inFlightItems.TryRemove(lockToken, out var item))
+            {
+                this.AddItem(item!);
+                return true;
+            }
+
+            return false;
         }
     }
 }
