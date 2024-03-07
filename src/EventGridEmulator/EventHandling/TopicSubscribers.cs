@@ -1,6 +1,10 @@
+#pragma warning disable SA1121 // Use built-in type alias, doesn't work well with type aliases
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Threading.Channels;
+using LockToken = string;
+using SubscriberName = string;
+using TopicName = string;
 
 namespace EventGridEmulator.EventHandling;
 
@@ -8,9 +12,9 @@ internal sealed class TopicSubscribers<T>
 {
     // For each topics, we create a list of subscribers.
     // In subscription data, they contain the items in queue. Waiting for acknowledge, release, reject
-    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, SubscriptionData>> _subscriptions = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<TopicName, ConcurrentDictionary<SubscriberName, SubscriptionData>> _subscriptions = new(StringComparer.OrdinalIgnoreCase);
 
-    public void AddEvent(string topicName, string subscriptionName, T[] events)
+    public void AddEvent(TopicName topicName, SubscriberName subscriptionName, T[] events)
     {
         var subscription = this.GetSubscriptionInfo(topicName, subscriptionName);
         foreach (var item in events)
@@ -19,50 +23,46 @@ internal sealed class TopicSubscribers<T>
         }
     }
 
-    public ValueTask<(T Item, string LockToken)> GetEventAsync(string topicName, string subscriptionName, CancellationToken cancellationToken)
+    public ValueTask<(T Item, LockToken LockToken)> GetEventAsync(TopicName topicName, SubscriberName subscriptionName, CancellationToken cancellationToken)
     {
         var subscription = this.GetSubscriptionInfo(topicName, subscriptionName);
         return subscription.GetItemAsync(cancellationToken);
     }
 
-    public bool TryDeleteEvent(string topicName, string subscriptionName, string lockToken)
+    public bool TryDeleteEvent(TopicName topicName, SubscriberName subscriptionName, LockToken lockToken)
     {
         var subscription = this.GetSubscriptionInfo(topicName, subscriptionName);
         return subscription.RemoveItem(lockToken);
     }
 
-    public bool TryReleaseEvent(string topicName, string subscriptionName, string lockToken)
+    public bool TryReleaseEvent(TopicName topicName, SubscriberName subscriptionName, LockToken lockToken)
     {
         var subscription = this.GetSubscriptionInfo(topicName, subscriptionName);
         return subscription.ReleaseItem(lockToken);
     }
 
-    private SubscriptionData GetSubscriptionInfo(string topicName, string subscriptionName)
+    private SubscriptionData GetSubscriptionInfo(TopicName topicName, SubscriberName subscriptionName)
     {
-        var subscriptions = this._subscriptions.GetOrAdd(topicName, _ => new ConcurrentDictionary<string, SubscriptionData>(StringComparer.OrdinalIgnoreCase));
+        var subscriptions = this._subscriptions.GetOrAdd(topicName, _ => new(StringComparer.OrdinalIgnoreCase));
         return subscriptions.GetOrAdd(subscriptionName, _ => new());
     }
 
-    // calling the subscr
     private sealed class SubscriptionData
     {
-        // queue of items
         private readonly Channel<T> _queue;
-        // the string of lock tokens associated with event
-        private readonly ConcurrentDictionary<string, T> _inFlightItems;
+        private readonly ConcurrentDictionary<LockToken, T> _inFlightItems;
 
-        // incremented int
         private long _lockToken;
 
         public SubscriptionData()
         {
             this._queue = Channel.CreateUnbounded<T>();
-            this._inFlightItems = new ConcurrentDictionary<string, T>();
+            this._inFlightItems = new ConcurrentDictionary<LockToken, T>();
         }
 
         public void AddItem(T item) => this._queue.Writer.TryWrite(item); // TryWrite always succeeds with Unbounded channels
 
-        public async ValueTask<(T Item, string LockToken)> GetItemAsync(CancellationToken cancellationToken)
+        public async ValueTask<(T Item, LockToken LockToken)> GetItemAsync(CancellationToken cancellationToken)
         {
             var item = await this._queue.Reader.ReadAsync(cancellationToken);
             var token = "token-" + Interlocked.Increment(ref this._lockToken).ToString(CultureInfo.InvariantCulture);
@@ -70,12 +70,12 @@ internal sealed class TopicSubscribers<T>
             return (item, token);
         }
 
-        public bool RemoveItem(string lockToken)
+        public bool RemoveItem(LockToken lockToken)
         {
             return this._inFlightItems.TryRemove(lockToken, out _);
         }
 
-        public bool ReleaseItem(string lockToken)
+        public bool ReleaseItem(LockToken lockToken)
         {
             if (this._inFlightItems.TryRemove(lockToken, out var item))
             {
