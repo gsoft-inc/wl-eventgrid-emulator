@@ -1,31 +1,33 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
+using Azure.Messaging;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventGridEmulator.EventHandling;
 
-internal sealed class CompositeEventHttpContextHandler
+internal sealed class PullEventHttpContextHandler
 {
     [StringSyntax("Route")]
-    public const string Route = "/{topic}/api/events";
-
+    public const string PublishRoute = "/topics/{topic}:publish";
+    
     private const string CloudEventContentType = "application/cloudevents-batch+json; charset=utf-8";
     private const string EventGridEventContentType = "application/json";
 
     private readonly IEventGridEventHttpContextHandler _eventGridEventHttpContextHandler;
     private readonly ICloudEventHttpContextHandler _cloudEventHttpContextHandler;
 
-    public CompositeEventHttpContextHandler(IEventGridEventHttpContextHandler eventGridEventHttpContextHandler, ICloudEventHttpContextHandler cloudEventHttpContextHandler)
+    public PullEventHttpContextHandler(IEventGridEventHttpContextHandler eventGridEventHttpContextHandler, ICloudEventHttpContextHandler cloudEventHttpContextHandler)
     {
         this._eventGridEventHttpContextHandler = eventGridEventHttpContextHandler;
         this._cloudEventHttpContextHandler = cloudEventHttpContextHandler;
     }
-
-    public static async Task HandleAsync(HttpContext context, [FromRoute] string topic, [FromServices] CompositeEventHttpContextHandler handler)
+    
+    public static async Task<IResult> HandlePublishAsync(HttpContext context, [FromRoute] string topic, [FromServices] PullEventHttpContextHandler handler)
     {
-        await handler.HandleAsync(context, topic);
+        await handler.HandlePublishAsync(context, topic);
+        return Results.Ok(new object());
     }
     
-    private Task HandleAsync(HttpContext context, string topic) => context.Request.ContentType switch
+    private Task HandlePublishAsync(HttpContext context, string topic) => context.Request.ContentType switch
     {
         EventGridEventContentType => this._eventGridEventHttpContextHandler.HandleAsync(context, topic),
         CloudEventContentType => this._cloudEventHttpContextHandler.HandleAsync(context, topic),
