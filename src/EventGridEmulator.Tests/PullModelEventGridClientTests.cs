@@ -8,7 +8,7 @@ using Azure.Messaging.EventGrid.Namespaces;
 
 namespace EventGridEmulator.Tests;
 
-public sealed class EventGridClientTests
+public sealed class PullModelEventGridClientTests
 {
     // TODO Update readme
     [Fact]
@@ -19,9 +19,9 @@ public sealed class EventGridClientTests
 
         await using var factory = new CustomWebApplicationFactory(options =>
         {
-            options.Configure<TopicOptions>(options =>
+            options.Configure<TopicOptions>(topicOptions =>
             {
-                options.Topics = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+                topicOptions.Topics = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
                 {
                     [topicName] = [$"pull://{eventSubscriptionName}"],
                 };

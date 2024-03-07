@@ -9,22 +9,22 @@ internal sealed class PullQueueHttpContextHandler
 {
     [StringSyntax("Route")]
     public const string ReceiveRoute = "topics/{topic}/eventsubscriptions/{subscription}:receive";
-    
+
     [StringSyntax("Route")]
     public const string AcknowledgeRoute = "topics/{topic}/eventsubscriptions/{subscription}:acknowledge";
-    
+
     [StringSyntax("Route")]
     public const string ReleaseRoute = "topics/{topic}/eventsubscriptions/{subscription}:release";
-    
+
     [StringSyntax("Route")]
     public const string RejectRoute = "topics/{topic}/eventsubscriptions/{subscription}:reject";
-    
+
     public static async Task<IResult> HandleReceiveAsync([FromRoute] string topic, [FromRoute] string subscription, [FromServices] TopicSubscribers<CloudEvent> events, CancellationToken cancellationToken)
     {
         var result = await events.GetEventAsync(topic, subscription, cancellationToken);
         return Results.Ok(new { value = new[] { new { brokerProperties = new { deliveryCount = 1, lockToken = result.LockToken }, @event = result.Item } } });
     }
-    
+
     public static async Task<IResult> HandleAcknowledgeAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
     {
         var succeededLockTokens = new List<string>();
@@ -55,7 +55,7 @@ internal sealed class PullQueueHttpContextHandler
             succeededLockTokens,
         });
     }
-    
+
     public static async Task<IResult> HandleReleaseAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
     {
         var succeededLockTokens = new List<string>();
@@ -86,7 +86,7 @@ internal sealed class PullQueueHttpContextHandler
             succeededLockTokens,
         });
     }
-    
+
     public static async Task<IResult> HandleRejectAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
     {
         var succeededLockTokens = new List<string>();
