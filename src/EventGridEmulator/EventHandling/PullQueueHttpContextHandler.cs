@@ -25,13 +25,13 @@ internal sealed class PullQueueHttpContextHandler
         return Results.Ok(new { value = new[] { new { brokerProperties = new { deliveryCount = 1, lockToken = result.LockToken }, @event = result.Item } } });
     }
     
-    public static async Task<IResult> HandleAcknowledgeAsync([FromRoute] string topic, [FromRoute] string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events)
+    public static async Task<IResult> HandleAcknowledgeAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
     {
         var succeededLockTokens = new List<string>();
         var failedLockTokens = new List<FailedLockToken>();
-        if (data?.LockTokens is not null)
+        if (requestData?.LockTokens is not null)
         {
-            foreach (var token in data.LockTokens)
+            foreach (var token in requestData.LockTokens)
             {
                 if (token is null)
                 {
@@ -56,13 +56,13 @@ internal sealed class PullQueueHttpContextHandler
         });
     }
     
-    public static async Task<IResult> HandleReleaseAsync([FromRoute] string topic, [FromRoute] string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events)
+    public static async Task<IResult> HandleReleaseAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
     {
         var succeededLockTokens = new List<string>();
         var failedLockTokens = new List<FailedLockToken>();
-        if (data?.LockTokens is not null)
+        if (requestData?.LockTokens is not null)
         {
-            foreach (var token in data.LockTokens)
+            foreach (var token in requestData.LockTokens)
             {
                 if (token is null)
                 {
@@ -87,13 +87,13 @@ internal sealed class PullQueueHttpContextHandler
         });
     }
     
-    public static async Task<IResult> HandleRejectAsync([FromRoute] string topic, [FromRoute] string subscription, AcknowledgeData data, [FromServices] TopicSubscribers<CloudEvent> events)
+    public static async Task<IResult> HandleRejectAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
     {
         var succeededLockTokens = new List<string>();
         var failedLockTokens = new List<FailedLockToken>();
-        if (data?.LockTokens is not null)
+        if (requestData?.LockTokens is not null)
         {
-            foreach (var token in data.LockTokens)
+            foreach (var token in requestData.LockTokens)
             {
                 if (token is null)
                 {
@@ -119,7 +119,8 @@ internal sealed class PullQueueHttpContextHandler
     }
 }
 
-internal sealed class AcknowledgeData
+// TODO: add more accurate name.
+internal sealed class LockTokensRequestData
 {
     public string?[]? LockTokens { get; set; }
 }

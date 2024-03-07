@@ -45,7 +45,7 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
         var addressesFeature = self._server.Features.Get<IServerAddressesFeature>();
         if (addressesFeature != null)
         {
-            var addresses = string.Join(", ", addressesFeature.Addresses.Select(x => x + CompositeEventHttpContextHandler.Route));
+            var addresses = string.Join(", ", addressesFeature.Addresses.Select(x => x + CompositeEventHttpContextHandler.ApiRoute));
             self._logger.LogInformation("Now listening for events on: {Addresses}", addresses);
         }
 
