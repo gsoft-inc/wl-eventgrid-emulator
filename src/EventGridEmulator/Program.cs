@@ -5,7 +5,6 @@ using EventGridEmulator.Network;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Serilog;
-using System.Text.Json.Serialization;
 
 // Disable automatic propagation of activity context (telemetry) between the publisher and the subscribers
 // This usually happens through HTTP headers when using HttpClient (https://stackoverflow.com/q/72277304/825695)

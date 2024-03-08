@@ -85,7 +85,7 @@ public class EmulatorValidationTests
         Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{this.ExpectedTopic}", receivedTopic);
     }
 
-    private class DataModel
+    private sealed class DataModel
     {
         public DataModel(string some)
         {

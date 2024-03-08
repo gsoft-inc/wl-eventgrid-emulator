@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Sockets;
 using Microsoft.Extensions.Http;
 using Polly;
+using Polly.Retry;
 
 namespace EventGridEmulator.Network;
 
@@ -21,7 +22,7 @@ internal sealed class SubscriberPolicyHttpMessageHandler : PolicyHttpMessageHand
         this._logger = logger;
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy() => Policy<HttpResponseMessage>
+    private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy() => Policy<HttpResponseMessage>
         .Handle<HttpRequestException>()
         .OrResult(IsRetriableHttpResponseMessage)
         .WaitAndRetryAsync(JitteredEventGridRetrySchedule());
