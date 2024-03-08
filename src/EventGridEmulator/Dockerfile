@@ -12,7 +12,7 @@ WORKDIR "/src/EventGridEmulator"
 RUN dotnet publish "EventGridEmulator.csproj" -c Release -r linux-musl-x64 --no-self-contained --nologo -p:RunAnalyzers=false -o /app/publish
 
 FROM base AS final
-RUN adduser --disabled-password --home /app --gecos '' app && chown -R app /app
+RUN chown -R app /app
 USER app
 WORKDIR /app
 COPY --from=publish /app/publish .
