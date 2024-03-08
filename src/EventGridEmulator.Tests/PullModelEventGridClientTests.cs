@@ -36,7 +36,7 @@ public sealed class PullModelEventGridClientTests
 
         var data = new EventData("CustomId");
         _ = await client.PublishCloudEventsAsync(topicName, [new CloudEvent("source", "type", data)]);
-        
+
         var events = await client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName);
         var ev = Assert.Single(events.Value.Value);
         Assert.Equal(("source", "type"), (ev.Event.Source, ev.Event.Type));
@@ -46,27 +46,27 @@ public sealed class PullModelEventGridClientTests
         var releaseResult = await client.ReleaseCloudEventsAsync(topicName, eventSubscriptionName, new ReleaseOptions([ev.BrokerProperties.LockToken, "abcd", "efgh"]));
         Assert.Single(releaseResult.Value.SucceededLockTokens);
         Assert.Equal(2, releaseResult.Value.FailedLockTokens.Count);
-        
+
         events = await client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName);
         ev = Assert.Single(events.Value.Value);
-        
+
         var acknowledgeResult = await client.AcknowledgeCloudEventsAsync(topicName, eventSubscriptionName, new AcknowledgeOptions([ev.BrokerProperties.LockToken]));
         Assert.Single(acknowledgeResult.Value.SucceededLockTokens);
 
         await AssertQueueIsEmpty();
-        
+
         _ = await client.PublishCloudEventsAsync(topicName, [new CloudEvent("source", "type", data)]);
         events = await client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName);
-        
+
         ev = Assert.Single(events.Value.Value);
         var rejectResult = await client.RejectCloudEventsAsync(topicName, eventSubscriptionName, new RejectOptions([ev.BrokerProperties.LockToken]));
         Assert.Single(rejectResult.Value.SucceededLockTokens);
-        
+
         await AssertQueueIsEmpty();
 
         async Task AssertQueueIsEmpty()
         {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1)); 
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
             await Assert.ThrowsAsync<TaskCanceledException>(() => client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName, cancellationToken: cts.Token));
         }
     }

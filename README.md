@@ -8,7 +8,7 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 
 ## Features
 
-- Support for multiple Event Grid topics by sending events to `http://127.0.0.1:6500/<topic-name>/api/events` (Push)  or `http://127.0.0.1:6500/topics/<topic-name>:publish` (Pull).
+- Support for multiple Event Grid topics by sending events to `http://127.0.0.1:6500/<topic-name>/api/events` (Push) or through the `EventGridClient` API (Pull).
 - Push delivery to configured webhooks defined in the emulator configuration file (more details below).
 - Pull model commands defined defined in the configuration below as well.
 - Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
@@ -55,12 +55,13 @@ It should look like this for Pull Model:
 
 In the example for pull model, we have a topics, `topicfoobar`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topics/topicfoobar:publish`, the emulator would make the events available to pull at `pull://foo-subscription` and `pull://bar-subscription` on your host machine.
 
-As for the Push model Queue APIs, we have the following endpoints:
+As for the Push model Queue APIs, we have the following API supported:
 
-- `http://127.0.0.1:6500/topics/{topic}/eventsubscriptions/{subscription}:receive`: receive an event from the queue.
-- `http://127.0.0.1:6500/topics/{topic}/eventsubscriptions/{subscription}:acknowledge`: acknowledge that the received event is processed successfully and delete from the queue.
-- `http://127.0.0.1:6500/topics/{topic}/eventsubscriptions/{subscription}:release`: requeue the received event on the queue.
-- `http://127.0.0.1:6500/topics/{topic}/eventsubscriptions/{subscription}:reject`: reject the received event and delete from the queue.
+- `PublishCloudEventsAsync`: publishes an event from the queue.
+- `ReceiveCloudEventsAsync`: publishes an event from the queue.
+- `AcknowledgeCloudEventsAsync`: acknowledge that the received event is processed successfully and delete from the queue.
+- `ReleaseCloudEventsAsync`: releases the received event and requeues the event.
+- `RejectCloudEventsAsync`: reject the received event and delete from the queue.
 
 **Run the Event Grid emulator with docker run**
 
@@ -112,13 +113,16 @@ var client = new EventGridClient(
     new Uri("http://127.0.0.1:6500"),
     new AzureKeyCredential("fakeAccessKey"));
 
-// Example of we can publish and retrieve events with EventGrid
+// Example of how to can publish an event with EventGridClient
 client.PublishCloudEventsAsync(topicName, [new CloudEvent("<source>", "<type>", data));
+
+// Example of how to receive an event with EventGridClient
 var events = await client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName);
 
-var acknowledgeResult = await client.AcknowledgeCloudEventsAsync(topicName, eventSubscriptionName, new AcknowledgeOptions([<lock token obtained from the received cloud event>]));
+//  Example of how to can acknowledge an event from queue
+// Reject/Release would be the same format except with RejectCloudEventsAsync/RejectOptions and ReleaseCloudEventsAsync/ReleaseOptions
+await client.AcknowledgeCloudEventsAsync(topicName, eventSubscriptionName, new AcknowledgeOptions([<lock token obtained from the received cloud event>]));
 
-// Release/Reject API calls are similar
 ```
 
 ## Additional information
