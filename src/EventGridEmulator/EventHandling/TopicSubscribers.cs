@@ -75,6 +75,7 @@ internal sealed class TopicSubscribers<T>
             return this._inFlightItems.TryRemove(lockToken, out _);
         }
 
+        // Azure EventGrid does not guarantee the ordering of events, the behavior of our emulator will be to enqueue the items back.
         public bool ReleaseItem(LockToken lockToken)
         {
             if (this._inFlightItems.TryRemove(lockToken, out var item))

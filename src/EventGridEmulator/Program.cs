@@ -36,7 +36,7 @@ builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigure
 builder.Services.AddSingleton<ISubscriberCancellationTokenRegistry, SubscriberCancellationTokenRegistry>();
 builder.Services.AddSingleton<IEventGridEventHttpContextHandler, EventGridEventHttpContextHandler>();
 builder.Services.AddSingleton<ICloudEventHttpContextHandler, CloudEventHttpContextHandler>();
-builder.Services.AddSingleton<CompositeEventHttpContextHandler>();
+builder.Services.AddSingleton<EventGridPublishHandler>();
 builder.Services.AddSingleton<PullQueueHttpContextHandler>();
 builder.Services.AddSingleton(typeof(TopicSubscribers<>));
 builder.Services.AddHostedService<ApplicationLifetimeLoggingHostedService>();
@@ -44,8 +44,8 @@ builder.Services.AddHostedService<PeriodicConfigurationReloadHostedService>();
 
 var app = builder.Build();
 
-app.MapPost(CompositeEventHttpContextHandler.ApiRoute, CompositeEventHttpContextHandler.HandleAsync);
-app.MapPost(CompositeEventHttpContextHandler.PublishRoute, CompositeEventHttpContextHandler.HandlePublishAsync);
+app.MapPost(EventGridPublishHandler.CustomTopicRoute, EventGridPublishHandler.HandleCustomTopicEventAsync);
+app.MapPost(EventGridPublishHandler.NamespaceTopicRoute, EventGridPublishHandler.HandleNamespaceTopicEventAsync);
 app.MapPost(PullQueueHttpContextHandler.ReceiveRoute, PullQueueHttpContextHandler.HandleReceiveAsync);
 app.MapPost(PullQueueHttpContextHandler.AcknowledgeRoute, PullQueueHttpContextHandler.HandleAcknowledgeAsync);
 app.MapPost(PullQueueHttpContextHandler.ReleaseRoute, PullQueueHttpContextHandler.HandleReleaseAsync);

@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EventGridEmulator.EventHandling;
 
-internal sealed class CompositeEventHttpContextHandler
+internal sealed class EventGridPublishHandler
 {
     [StringSyntax("Route")]
-    public const string ApiRoute = "/{topic}/api/events";
+    public const string CustomTopicRoute = "/{topic}/api/events";
     
     [StringSyntax("Route")]
-    public const string PublishRoute = "/topics/{topic}:publish";
+    public const string NamespaceTopicRoute = "/topics/{topic}:publish";
 
     private const string CloudEventContentType = "application/cloudevents-batch+json; charset=utf-8";
     private const string EventGridEventContentType = "application/json";
@@ -17,18 +17,18 @@ internal sealed class CompositeEventHttpContextHandler
     private readonly IEventGridEventHttpContextHandler _eventGridEventHttpContextHandler;
     private readonly ICloudEventHttpContextHandler _cloudEventHttpContextHandler;
 
-    public CompositeEventHttpContextHandler(IEventGridEventHttpContextHandler eventGridEventHttpContextHandler, ICloudEventHttpContextHandler cloudEventHttpContextHandler)
+    public EventGridPublishHandler(IEventGridEventHttpContextHandler eventGridEventHttpContextHandler, ICloudEventHttpContextHandler cloudEventHttpContextHandler)
     {
         this._eventGridEventHttpContextHandler = eventGridEventHttpContextHandler;
         this._cloudEventHttpContextHandler = cloudEventHttpContextHandler;
     }
 
-    public static async Task HandleAsync(HttpContext context, [FromRoute] string topic, [FromServices] CompositeEventHttpContextHandler handler)
+    public static async Task HandleCustomTopicEventAsync(HttpContext context, [FromRoute] string topic, [FromServices] EventGridPublishHandler handler)
     {
         await handler.HandleAsync(context, topic);
     }
     
-    public static async Task<IResult> HandlePublishAsync(HttpContext context, [FromRoute] string topic, [FromServices] CompositeEventHttpContextHandler handler)
+    public static async Task<IResult> HandleNamespaceTopicEventAsync(HttpContext context, [FromRoute] string topic, [FromServices] EventGridPublishHandler handler)
     {
         await handler.HandleAsync(context, topic);
         return Results.Ok(new object());

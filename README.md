@@ -1,16 +1,16 @@
 # Workleap Azure Event Grid Emulator
 
-This is an open source emulator for [Azure Event Grid](https://learn.microsoft.com/en-us/azure/event-grid/overview) that supports only the [push delivery](https://learn.microsoft.com/en-us/azure/event-grid/push-delivery-overview) model. Based on ASP.NET Core, this emulator provides a cross-platform experience for developers wanting to try Azure Event Grid easily in a local environment without having to deploy to Azure.
+This is an open source emulator for [Azure Event Grid](https://learn.microsoft.com/en-us/azure/event-grid/overview) that supports both the [push delivery](https://learn.microsoft.com/en-us/azure/event-grid/push-delivery-overview) and the [pull delivery](https://learn.microsoft.com/en-us/azure/event-grid/pull-delivery-overview) models. Based on ASP.NET Core, this emulator provides a cross-platform experience for developers wanting to try Azure Event Grid easily in a local environment without having to deploy to Azure.
 
-The emulator supports two Events delivery formats: Push model and Pull model.
+The emulator supports two Events delivery formats: Push and Pull.
 
 This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Microsoft.
 
 ## Features
 
-- Support for multiple Event Grid topics by sending events to `http://127.0.0.1:6500/<topic-name>/api/events` (Push) or through the `EventGridClient` API (Pull).
+- Support for Push and Delivery to multiple Event Grid topics by sending EventGridEvents (Push) on Custom topics to `http://127.0.0.1:6500/<topic-name>/api/events` and CloudEvents (Pull) on Namespace topics to `http://127.0.0.1:6500/topics/<topic-name>:publish`.
 - Push delivery to configured webhooks defined in the emulator configuration file (more details below).
-- Pull model commands defined defined in the configuration below as well.
+- Pull delivery API client commands supported in the emulator (more details below).
 - Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
 - Ability to add and remove topics and webhooks at runtime without having to restart the emulator.
 - As the emulator is built on top of ASP.NET Core, you can follow this [Microsoft documentation](https://learn.microsoft.com/en-us/aspnet/core/security/docker-compose-https) to run on HTTPS.
@@ -24,7 +24,7 @@ You must have [Docker](https://www.docker.com/get-started/) installed. This Even
 The first step is to **create a configuration file** for the emulator to know the topics, and for each topic, the webhooks to call when an event is published.
 Create a configuration file named `appsettings.json` somewhere on your computer, for instance: `C:\eventgridemulator\appsettings.json`.
 
-It should look like this for Push Model:
+### Push Delivery:
 
 ```json
 {
@@ -39,9 +39,9 @@ It should look like this for Push Model:
   }
 }
 ```
-In the example for push model, we have two topics, `topic1` and `topic2`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topic1/api/events`, the emulator would forward the events to `https://host.docker.internal:5122/my-webhook` and `http://host.docker.internal:7221/eventgrid` on your host machine. As the emulator runs on Docker, you must use the `host.docker.internal` (emulator must make an http ) host whenever you want to call a webhook on your host machine.
+In the example for push delivery, we have two topics, `topic1` and `topic2`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topic1/api/events`, the emulator would forward the events to `https://host.docker.internal:5122/my-webhook` and `http://host.docker.internal:7221/eventgrid` on your host machine. As the emulator runs on Docker, you must use the `host.docker.internal` (emulator must make an http ) host whenever you want to call a webhook on your host machine.
 
-It should look like this for Pull Model:
+### Pull delivery
 ```json
 {
   "Topics": {
@@ -53,9 +53,9 @@ It should look like this for Pull Model:
 }
 ```
 
-In the example for pull model, we have a topics, `topicfoobar`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topics/topicfoobar:publish`, the emulator would make the events available to pull at `pull://foo-subscription` and `pull://bar-subscription` on your host machine.
+In the example for pull delivery, we have a topics, `topicfoobar`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topics/topicfoobar:publish`, the emulator would make the events available to pull at `pull://foo-subscription` and `pull://bar-subscription` on your host machine.
 
-As for the Push model Queue APIs, we have the following API supported:
+As for the Push delivery Queue APIs, we have the following API supported:
 
 - `PublishCloudEventsAsync`: publishes an event from the queue.
 - `ReceiveCloudEventsAsync`: publishes an event from the queue.
@@ -93,20 +93,26 @@ From the directory in which the file resides, run the `docker compose up` comman
 
 **Sending and receiving events**
 
-Push Model: Now that the emulator is running, you can send events to it and receive them in your webhooks. If you're using C#, follow [these steps from the Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme?view=azure-dotnet):
+Push Delivery: Now that the emulator is running, you can send events to it and receive them in your webhooks. If you're using C#, follow [these steps from the Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme?view=azure-dotnet):
 
 ```csharp
 // Change "my-topic" to the name of your topic.
 // The authentication mechanism is actually ignored by the emulator.
 // If you must provide a TokenCredential instead of an access key, the emulator must be running on HTTPS.
 var client = new EventGridPublisherClient(
-    new Uri("http://127.0.0.1:6500"),
+    new Uri("http://127.0.0.1:6500/my-topic/api/events"),
     new AzureKeyCredential("fakeAccessKey"));
+
+// An url with the correct url would need to be exposed to process the push delivery events
+[HttpPost("<my-topic endpoint defined in config>")]
+public IActionResult Post([FromBody]EventGridEvent[] value)
+{
+...
+}
 ```
-Pull Model: Once the emulator is running, we can send events to it and pull/acknowledge it with api calls.
+Pull Delivery: Once the emulator is running, we can send events to it and pull/acknowledge it with api calls.
 
 ```csharp
-// Change "my-topic" to the name of your topic.
 // The authentication mechanism is actually ignored by the emulator.
 // If you must provide a TokenCredential instead of an access key, the emulator must be running on HTTPS.
 var client = new EventGridClient(

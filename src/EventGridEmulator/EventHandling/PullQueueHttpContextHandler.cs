@@ -19,13 +19,28 @@ internal sealed class PullQueueHttpContextHandler
     [StringSyntax("Route")]
     public const string RejectRoute = "topics/{topic}/eventsubscriptions/{subscription}:reject";
 
-    public static async Task<IResult> HandleReceiveAsync([FromRoute] string topic, [FromRoute] string subscription, [FromServices] TopicSubscribers<CloudEvent> events, CancellationToken cancellationToken)
+    public static async Task<IResult> HandleReceiveAsync([FromRoute] string topic, [FromRoute] string subscription, [FromServices] TopicSubscribers<CloudEvent> topicSubscribers, CancellationToken cancellationToken)
     {
-        var result = await events.GetEventAsync(topic, subscription, cancellationToken);
-        return Results.Ok(new { value = new[] { new { brokerProperties = new { deliveryCount = 1, lockToken = result.LockToken }, @event = result.Item } } });
+        var result = await topicSubscribers.GetEventAsync(topic, subscription, cancellationToken);
+        var receiveResults = new ReceiveResults
+        {
+            value = new[]
+            {
+                new EventObject
+                {
+                    BrokerProperties = new BrokerProperties
+                    {
+                        DeliveryCount = 1, // currently only support receiving one event at a time
+                        LockToken = result.LockToken,
+                    },
+                    Event = result.Item,
+                },
+            },
+        };
+        return Results.Ok(receiveResults);
     }
 
-    public static async Task<IResult> HandleAcknowledgeAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
+    public static async Task<IResult> HandleAcknowledgeAsync([FromRoute] string topic, [FromRoute] string subscription, [FromBody] LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> topicSubscribers)
     {
         var succeededLockTokens = new List<string>();
         var failedLockTokens = new List<FailedLockToken>();
@@ -38,7 +53,7 @@ internal sealed class PullQueueHttpContextHandler
                     continue;
                 }
 
-                if (events.TryDeleteEvent(topic, subscription, token))
+                if (topicSubscribers.TryDeleteEvent(topic, subscription, token))
                 {
                     succeededLockTokens.Add(token);
                 }
@@ -49,14 +64,14 @@ internal sealed class PullQueueHttpContextHandler
             }
         }
 
-        return Results.Ok(new
+        return Results.Ok(new LockTokensResultsData
         {
-            failedLockTokens,
-            succeededLockTokens,
+            FailedLockTokens = failedLockTokens,
+            SucceededLockTokens = succeededLockTokens,
         });
     }
 
-    public static async Task<IResult> HandleReleaseAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
+    public static async Task<IResult> HandleReleaseAsync([FromRoute] string topic, [FromRoute] string subscription, [FromBody] LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> topicSubscribers)
     {
         var succeededLockTokens = new List<string>();
         var failedLockTokens = new List<FailedLockToken>();
@@ -69,7 +84,7 @@ internal sealed class PullQueueHttpContextHandler
                     continue;
                 }
 
-                if (events.TryReleaseEvent(topic, subscription, token))
+                if (topicSubscribers.TryReleaseEvent(topic, subscription, token))
                 {
                     succeededLockTokens.Add(token);
                 }
@@ -80,14 +95,14 @@ internal sealed class PullQueueHttpContextHandler
             }
         }
 
-        return Results.Ok(new
+        return Results.Ok(new LockTokensResultsData
         {
-            failedLockTokens,
-            succeededLockTokens,
+            FailedLockTokens = failedLockTokens,
+            SucceededLockTokens = succeededLockTokens,
         });
     }
 
-    public static async Task<IResult> HandleRejectAsync([FromRoute] string topic, [FromRoute] string subscription, LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> events)
+    public static async Task<IResult> HandleRejectAsync([FromRoute] string topic, [FromRoute] string subscription, [FromBody] LockTokensRequestData requestData, [FromServices] TopicSubscribers<CloudEvent> topicSubscribers)
     {
         var succeededLockTokens = new List<string>();
         var failedLockTokens = new List<FailedLockToken>();
@@ -100,7 +115,7 @@ internal sealed class PullQueueHttpContextHandler
                     continue;
                 }
 
-                if (events.TryDeleteEvent(topic, subscription, token))
+                if (topicSubscribers.TryDeleteEvent(topic, subscription, token))
                 {
                     succeededLockTokens.Add(token);
                 }
@@ -111,15 +126,40 @@ internal sealed class PullQueueHttpContextHandler
             }
         }
 
-        return Results.Ok(new
+        return Results.Ok(new LockTokensResultsData
         {
-            failedLockTokens,
-            succeededLockTokens,
+            FailedLockTokens = failedLockTokens,
+            SucceededLockTokens = succeededLockTokens,
         });
     }
 }
 
-// TODO: add more accurate name.
+internal sealed class ReceiveResults
+{
+    public EventObject[]? value { get; set; }
+}
+
+internal sealed class EventObject
+{
+    public BrokerProperties? BrokerProperties { get; set; }
+
+    public CloudEvent? Event { get; set; } 
+}
+
+internal sealed class BrokerProperties
+{
+    public int DeliveryCount { get; set; }
+
+    public string? LockToken { get; set; }
+}
+
+internal sealed class LockTokensResultsData
+{
+    public List<FailedLockToken>? FailedLockTokens { get; set; }
+
+    public List<string>? SucceededLockTokens { get; set; }
+}
+
 internal sealed class LockTokensRequestData
 {
     public string?[]? LockTokens { get; set; }
