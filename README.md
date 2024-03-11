@@ -8,7 +8,7 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 
 ## Features
 
-- Support for Push and Delivery to multiple Event Grid topics by sending EventGridEvents (Push) on Custom topics to `http://127.0.0.1:6500/<topic-name>/api/events` and CloudEvents (Pull) on Namespace topics to `http://127.0.0.1:6500/topics/<topic-name>:publish`.
+- Support for Push and Delivery to multiple Event Grid topics by sending EventGridEvents/CloudEvents (Push) on Custom topics to `http://127.0.0.1:6500/<topic-name>/api/events` and CloudEvents (Pull) on Namespace topics to `http://127.0.0.1:6500/topics/<topic-name>:publish`.
 - Push delivery to configured webhooks defined in the emulator configuration file (more details below).
 - Pull delivery API client commands supported in the emulator (more details below).
 - Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
@@ -24,7 +24,7 @@ You must have [Docker](https://www.docker.com/get-started/) installed. This Even
 The first step is to **create a configuration file** for the emulator to know the topics, and for each topic, the webhooks to call when an event is published.
 Create a configuration file named `appsettings.json` somewhere on your computer, for instance: `C:\eventgridemulator\appsettings.json`.
 
-### Push Delivery:
+### Push Delivery configuration
 
 ```json
 {
@@ -41,7 +41,7 @@ Create a configuration file named `appsettings.json` somewhere on your computer,
 ```
 In the example for push delivery, we have two topics, `topic1` and `topic2`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topic1/api/events`, the emulator would forward the events to `https://host.docker.internal:5122/my-webhook` and `http://host.docker.internal:7221/eventgrid` on your host machine. As the emulator runs on Docker, you must use the `host.docker.internal` (emulator must make an http ) host whenever you want to call a webhook on your host machine.
 
-### Pull delivery
+### Pull delivery configuration
 ```json
 {
   "Topics": {
@@ -54,14 +54,6 @@ In the example for push delivery, we have two topics, `topic1` and `topic2`. If 
 ```
 
 In the example for pull delivery, we have a topics, `topicfoobar`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topics/topicfoobar:publish`, the emulator would make the events available to pull at `pull://foo-subscription` and `pull://bar-subscription` on your host machine.
-
-As for the Push delivery Queue APIs, we have the following API supported:
-
-- `PublishCloudEventsAsync`: publishes an event from the queue.
-- `ReceiveCloudEventsAsync`: publishes an event from the queue.
-- `AcknowledgeCloudEventsAsync`: acknowledge that the received event is processed successfully and delete from the queue.
-- `ReleaseCloudEventsAsync`: releases the received event and requeues the event.
-- `RejectCloudEventsAsync`: reject the received event and delete from the queue.
 
 **Run the Event Grid emulator with docker run**
 
@@ -91,9 +83,9 @@ services:
 
 From the directory in which the file resides, run the `docker compose up` command.
 
-**Sending and receiving events**
+## Publish and Receive Events using Push Delivery for Custom Topic
 
-Push Delivery: Now that the emulator is running, you can send events to it and receive them in your webhooks. If you're using C#, follow [these steps from the Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme?view=azure-dotnet):
+Push Delivery: Now that the emulator is running, you can send both EventGridEvents and CloudEvents to the endpoint and receive them in your webhooks. If you're using C#, follow [these steps from the Microsoft documentation](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme?view=azure-dotnet):
 
 ```csharp
 // Change "my-topic" to the name of your topic.
@@ -103,14 +95,38 @@ var client = new EventGridPublisherClient(
     new Uri("http://127.0.0.1:6500/my-topic/api/events"),
     new AzureKeyCredential("fakeAccessKey"));
 
+// Create and send a CloudEvent to EventGrid
+var cloudEvent = new new CloudEvent("<source>", "<type>", data);
+await client.SendEventAsync(cloudEvent);
+
+// Create and send an EventGridEvent to EventGrid
+var eventGridEvent = new EventGridEvent(
+    subject: "<source>",
+    eventType: "<type>",
+    dataVersion: "<version>",
+    data: data);
+await client.SendEventAsync(eventGridEvent);
+
 // An url with the correct url would need to be exposed to process the push delivery events
 [HttpPost("<my-topic endpoint defined in config>")]
 public IActionResult Post([FromBody]EventGridEvent[] value)
 {
 ...
 }
+
+## Publish and Receive Events with Pull Delivery Model for Namespace Topic
+
 ```
-Pull Delivery: Once the emulator is running, we can send events to it and pull/acknowledge it with api calls.
+Pull Delivery: Once the emulator is running, we can send CloudEvents to the endpoint and pull/acknowledge events with api calls.
+
+We support the following Queue delivery APIs:
+
+- `PublishCloudEventsAsync`: publishes an event from the queue.
+- `ReceiveCloudEventsAsync`: receives an event from the queue.
+- `AcknowledgeCloudEventsAsync`: acknowledges that the received event is processed successfully and delete from the queue.
+- `ReleaseCloudEventsAsync`: releases the received event and requeues the event.
+- `RejectCloudEventsAsync`: rejects the received event and delete from the queue.
+
 
 ```csharp
 // The authentication mechanism is actually ignored by the emulator.
@@ -120,7 +136,7 @@ var client = new EventGridClient(
     new AzureKeyCredential("fakeAccessKey"));
 
 // Example of how to can publish an event with EventGridClient
-client.PublishCloudEventsAsync(topicName, [new CloudEvent("<source>", "<type>", data));
+client.PublishCloudEventsAsync(topicName, new CloudEvent("<source>", "<type>", data));
 
 // Example of how to receive an event with EventGridClient
 var events = await client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName);

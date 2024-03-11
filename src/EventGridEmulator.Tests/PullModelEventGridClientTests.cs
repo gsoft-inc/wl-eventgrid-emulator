@@ -10,7 +10,6 @@ namespace EventGridEmulator.Tests;
 
 public sealed class PullModelEventGridClientTests
 {
-    
     [Fact]
     public async Task CanSendReceiveEvents()
     {
