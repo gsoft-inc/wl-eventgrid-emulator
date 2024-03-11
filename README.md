@@ -7,8 +7,8 @@ The emulator supports two Events delivery formats: Push and Pull.
 This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with Microsoft.
 
 ## Features
-
-- Support for Push and Delivery to multiple Event Grid topics by sending EventGridEvents/CloudEvents (Push) on Custom topics to `http://127.0.0.1:6500/<topic-name>/api/events` and CloudEvents (Pull) on Namespace topics to `http://127.0.0.1:6500/topics/<topic-name>:publish`.
+- Support publishing events to Custom Topics (EventGridEvents/CloudEvents) and Namespace Topics (only CloudEvents)
+- Support Push & Pull Delivery Models
 - Push delivery to configured webhooks defined in the emulator configuration file (more details below).
 - Pull delivery API client commands supported in the emulator (more details below).
 - Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
