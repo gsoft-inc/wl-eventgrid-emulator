@@ -1,6 +1,8 @@
+using Azure.Messaging;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.EventHandling;
 using EventGridEmulator.Network;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Serilog;
 
@@ -34,13 +36,20 @@ builder.Services.AddSingleton<IPostConfigureOptions<TopicOptions>, PostConfigure
 builder.Services.AddSingleton<ISubscriberCancellationTokenRegistry, SubscriberCancellationTokenRegistry>();
 builder.Services.AddSingleton<IEventGridEventHttpContextHandler, EventGridEventHttpContextHandler>();
 builder.Services.AddSingleton<ICloudEventHttpContextHandler, CloudEventHttpContextHandler>();
-builder.Services.AddSingleton<CompositeEventHttpContextHandler>();
+builder.Services.AddSingleton<EventGridPublishHandler>();
+builder.Services.AddSingleton<PullQueueHttpContextHandler>();
+builder.Services.AddSingleton(typeof(TopicSubscribers<>));
 builder.Services.AddHostedService<ApplicationLifetimeLoggingHostedService>();
 builder.Services.AddHostedService<PeriodicConfigurationReloadHostedService>();
 
 var app = builder.Build();
 
-app.MapPost(CompositeEventHttpContextHandler.Route, CompositeEventHttpContextHandler.HandleAsync);
+app.MapPost(EventGridPublishHandler.CustomTopicRoute, EventGridPublishHandler.HandleCustomTopicEventAsync);
+app.MapPost(EventGridPublishHandler.NamespaceTopicRoute, EventGridPublishHandler.HandleNamespaceTopicEventAsync);
+app.MapPost(PullQueueHttpContextHandler.ReceiveRoute, PullQueueHttpContextHandler.HandleReceiveAsync);
+app.MapPost(PullQueueHttpContextHandler.AcknowledgeRoute, PullQueueHttpContextHandler.HandleAcknowledgeAsync);
+app.MapPost(PullQueueHttpContextHandler.ReleaseRoute, PullQueueHttpContextHandler.HandleReleaseAsync);
+app.MapPost(PullQueueHttpContextHandler.RejectRoute, PullQueueHttpContextHandler.HandleRejectAsync);
 
 app.Run();
 

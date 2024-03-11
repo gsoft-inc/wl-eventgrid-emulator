@@ -29,7 +29,7 @@ public class FactoryClientBuilder
         return factory.CreateClient();
     }
 
-    private class Topic
+    private sealed class Topic
     {
         public Topic(string name, string url)
         {

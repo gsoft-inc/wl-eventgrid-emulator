@@ -36,12 +36,12 @@ public class EmulatorValidationTests
 
         // Create and send an event to EventGrid
         var eventGridEvent = new EventGridEvent(
-            subject: "foo", 
-            eventType: "bar", 
-            dataVersion: "1.0", 
+            subject: "foo",
+            eventType: "bar",
+            dataVersion: "1.0",
             data: new DataModel(some: "data"));
         var response = await publisher.SendEventAsync(eventGridEvent);
-        
+
         // Assert that the message was successfully sent
         Assert.Equal(200, response.Status);
 
@@ -52,7 +52,7 @@ public class EmulatorValidationTests
         Assert.Equal("data", result?.Some);
         Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{this.ExpectedTopic}", receivedTopic);
     }
-    
+
     [Fact]
     public async Task ValidatePublishAndSubscribeRoundTripForCloudEvent()
     {
@@ -73,7 +73,7 @@ public class EmulatorValidationTests
         // Create and send an event to EventGrid
         var cloudEvent = new CloudEvent("foo", "bar", new DataModel(some: "data"));
         var response = await publisher.SendEventAsync(cloudEvent);
-        
+
         // Assert that the message was successfully sent
         Assert.Equal(200, response.Status);
 
@@ -85,7 +85,7 @@ public class EmulatorValidationTests
         Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{this.ExpectedTopic}", receivedTopic);
     }
 
-    private class DataModel
+    private sealed class DataModel
     {
         public DataModel(string some)
         {
