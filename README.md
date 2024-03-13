@@ -113,10 +113,9 @@ public IActionResult Post([FromBody]EventGridEvent[] value)
 {
 ...
 }
-
-## Publish and Receive Events with Pull Delivery Model for Namespace Topic
-
 ```
+## Publish and Receive Events using Pull Delivery Model for Namespace Topic
+
 Pull Delivery: Once the emulator is running, we can send CloudEvents to the endpoint and pull/acknowledge events with api calls.
 
 We support the following Queue delivery APIs:
