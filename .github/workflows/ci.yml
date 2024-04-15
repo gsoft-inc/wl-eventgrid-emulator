@@ -15,6 +15,8 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
 
+      - run: Build.ps1
+
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5
