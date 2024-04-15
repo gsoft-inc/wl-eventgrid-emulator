@@ -24,7 +24,7 @@ internal sealed class PullQueueHttpContextHandler
         var result = await topicSubscribers.GetEventAsync(topic, subscription, cancellationToken);
         var receiveResults = new ReceiveResults
         {
-            value = new[]
+            Value = new[]
             {
                 new EventObject
                 {
@@ -136,7 +136,8 @@ internal sealed class PullQueueHttpContextHandler
 
 internal sealed class ReceiveResults
 {
-    public EventObject[]? value { get; set; }
+    [JsonPropertyName("value")]
+    public EventObject[]? Value { get; set; }
 }
 
 internal sealed class EventObject
