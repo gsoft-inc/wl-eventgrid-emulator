@@ -15,7 +15,8 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
 
-      - run: Build.ps1
+      - run: ./Build.ps1
+        shell: pwsh
 
       - name: Docker metadata
         id: meta
