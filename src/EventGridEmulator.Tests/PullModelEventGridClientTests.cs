@@ -93,14 +93,6 @@ public sealed class PullModelEventGridClientTests
         await Assert.ThrowsAsync<TaskCanceledException>(() => client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName, cancellationToken: cts.Token));
     }
 
-    private sealed record EventData(string Id);
-
-    private sealed class CustomWebApplicationFactory(Action<IServiceCollection> configureServices) : WebApplicationFactory<Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-            => builder.ConfigureTestServices(configureServices);
-    }
-    
     private static async Task<EventGridClient> CreateTestEventGridClient(string topicName, string eventSubscriptionName)
     {
         var factory = new CustomWebApplicationFactory(options =>
@@ -122,4 +114,12 @@ public sealed class PullModelEventGridClientTests
         });
         return client;
     }
+
+    private sealed record EventData(string Id);
+
+    private sealed class CustomWebApplicationFactory(Action<IServiceCollection> configureServices) : WebApplicationFactory<Program>
+    {
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+            => builder.ConfigureTestServices(configureServices);
+    }    
 }

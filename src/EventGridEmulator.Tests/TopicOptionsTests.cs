@@ -35,7 +35,7 @@ public class TopicOptionsTests
         };
 
         var optionsC = new TopicOptions(optionsB);
-        optionsC.Topics.Add("b", new[] { "c", "d" });
+        optionsC.Topics.Add("b", ["c", "d"]);
 
         Assert.NotEqual(optionsA, optionsB);
         Assert.NotEqual(optionsB, optionsC);
