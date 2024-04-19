@@ -25,6 +25,12 @@
     {
       "matchManagers": ["nuget"],
       "groupName": "NuGet dependencies"
+    },    
+    {
+      // We rely on specific preview version of Azure.Messaging.EventGrid for Pull Delivery
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["NuGet Azure.Messaging.EventGrid"],
+      "groupName": "NuGet Azure.Messaging.EventGrid"
     },
     {
       "matchManagers": ["dockerfile"],
