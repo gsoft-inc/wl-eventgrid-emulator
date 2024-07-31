@@ -28,13 +28,32 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
 
     public async Task HandleAsync(HttpContext context, string topic)
     {
-        var result = await this.HandleInternalAsync(context, topic);
+        var result = await this.HandleInternalAsync(context, topic, batch: true);
         await result.ExecuteAsync(context);
     }
 
-    private async Task<IResult> HandleInternalAsync(HttpContext context, string topic)
+    public async Task HandleAsync(HttpContext context, string topic, bool batch)
     {
-        var events = await EventsSerializer.DeserializeEventsAsync<TEvent>(context);
+        var result = await this.HandleInternalAsync(context, topic, batch);
+        await result.ExecuteAsync(context);
+    }
+
+    private async Task<IResult> HandleInternalAsync(HttpContext context, string topic, bool batch)
+    {
+        TEvent[]? events = null;
+        if (batch)
+        {
+            events = await EventsSerializer.DeserializeEventsAsync<TEvent>(context);
+        }
+        else
+        {
+            var ev = await EventsSerializer.DeserializeEventAsync<TEvent>(context);
+            if (ev is not null)
+            {
+                events = [ev];
+            }
+        }
+
         if (events == null)
         {
             return Results.BadRequest();

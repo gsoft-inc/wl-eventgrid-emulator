@@ -1,6 +1,6 @@
-﻿namespace EventGridEmulator.EventHandling;
+namespace EventGridEmulator.EventHandling;
 
 internal interface ICloudEventHttpContextHandler
 {
-    public Task HandleAsync(HttpContext context, string topic);
+    public Task HandleAsync(HttpContext context, string topic, bool batch);
 }
