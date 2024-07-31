@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Sockets;
 using Microsoft.Extensions.Http;
 using Polly;
 using Polly.Retry;

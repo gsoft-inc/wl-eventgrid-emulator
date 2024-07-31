@@ -1,8 +1,6 @@
-using Azure.Messaging;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.EventHandling;
 using EventGridEmulator.Network;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Serilog;
 

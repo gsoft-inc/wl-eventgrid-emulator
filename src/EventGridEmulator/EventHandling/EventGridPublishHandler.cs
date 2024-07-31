@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventGridEmulator.EventHandling;
@@ -11,7 +11,8 @@ internal sealed class EventGridPublishHandler
     [StringSyntax("Route")]
     public const string NamespaceTopicRoute = "/topics/{topic}:publish";
 
-    private const string CloudEventContentType = "application/cloudevents-batch+json; charset=utf-8";
+    private const string CloudEventContentType = "application/cloudevents+json; charset=utf-8";
+    private const string CloudEventBatchContentType = "application/cloudevents-batch+json; charset=utf-8";
     private const string EventGridEventContentType = "application/json";
 
     private readonly IEventGridEventHttpContextHandler _eventGridEventHttpContextHandler;
@@ -37,7 +38,8 @@ internal sealed class EventGridPublishHandler
     private Task HandleAsync(HttpContext context, string topic) => context.Request.ContentType switch
     {
         EventGridEventContentType => this._eventGridEventHttpContextHandler.HandleAsync(context, topic),
-        CloudEventContentType => this._cloudEventHttpContextHandler.HandleAsync(context, topic),
+        CloudEventContentType => this._cloudEventHttpContextHandler.HandleAsync(context, topic, batch: false),
+        CloudEventBatchContentType => this._cloudEventHttpContextHandler.HandleAsync(context, topic, batch: true),
         _ => Results.BadRequest().ExecuteAsync(context),
     };
 }

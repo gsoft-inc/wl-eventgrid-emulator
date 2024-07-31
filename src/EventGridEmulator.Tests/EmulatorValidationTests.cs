@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Azure.Messaging;
 using Azure.Messaging.EventGrid;
-using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 
 namespace EventGridEmulator.Tests;

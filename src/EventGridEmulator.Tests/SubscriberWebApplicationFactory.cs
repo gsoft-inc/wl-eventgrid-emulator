@@ -1,4 +1,3 @@
-using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
