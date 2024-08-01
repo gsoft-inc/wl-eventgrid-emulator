@@ -27,7 +27,7 @@ public sealed class PullModelEventGridClientTests
         var deserializedData = ev.Event.Data!.ToObjectFromJson<EventData>();
         Assert.Equal(data, deserializedData);
     }
-    
+
     [Fact]
     public async Task CanSendReceiveEvents()
     {
@@ -62,12 +62,12 @@ public sealed class PullModelEventGridClientTests
 
         var acknowledgeResult = await client.AcknowledgeCloudEventsAsync(topicName, eventSubscriptionName, new AcknowledgeOptions([ev.BrokerProperties.LockToken]));
         Assert.Single(acknowledgeResult.Value.SucceededLockTokens);
-        
+
         // Assert queue is empty
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
         await Assert.ThrowsAsync<TaskCanceledException>(() => client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName, cancellationToken: cts.Token));
     }
-    
+
     [Fact]
     public async Task CanSendReceiveReleaseEventsWithInvalidLockTokens()
     {
@@ -89,7 +89,7 @@ public sealed class PullModelEventGridClientTests
         events = await client.ReceiveCloudEventsAsync(topicName, eventSubscriptionName);
         Assert.Single(events.Value.Value);
     }
-    
+
     [Fact]
     public async Task CanSendReceiveRejectEvents()
     {
@@ -123,7 +123,7 @@ public sealed class PullModelEventGridClientTests
                 };
             });
         });
-        
+
         var httpClientHandler = factory.Server.CreateHandler();
 
         var client = new EventGridClient(new Uri("https://localhost"), new AzureKeyCredential("noop"), new EventGridClientOptions
@@ -139,5 +139,5 @@ public sealed class PullModelEventGridClientTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
             => builder.ConfigureTestServices(configureServices);
-    }    
+    }
 }

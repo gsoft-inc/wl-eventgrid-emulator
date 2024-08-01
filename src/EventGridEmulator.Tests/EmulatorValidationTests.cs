@@ -8,13 +8,7 @@ namespace EventGridEmulator.Tests;
 
 public class EmulatorValidationTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly string ExpectedTopic = "orders";
-
-    public EmulatorValidationTests(ITestOutputHelper testOutputHelper)
-    {
-        this._testOutputHelper = testOutputHelper;
-    }
+    private const string ExpectedTopic = "orders";
 
     [Fact]
     public async Task ValidatePublishAndSubscribeRoundTripForEventGridEvent()
@@ -25,7 +19,7 @@ public class EmulatorValidationTests
 
         // Create the EventGrid subscriber
         using var subscriber = new FactoryClientBuilder(handler)
-            .WithTopic(this.ExpectedTopic, "https://localhost/orders-webhook")
+            .WithTopic(ExpectedTopic, "https://localhost/orders-webhook")
             .Build();
 
         // Create the EventGrid publisher
@@ -49,7 +43,7 @@ public class EmulatorValidationTests
         var result = @event.Single()["data"].Deserialize<DataModel>();
         var receivedTopic = @event.Single()["topic"].Deserialize<string>();
         Assert.Equal("data", result?.Some);
-        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{this.ExpectedTopic}", receivedTopic);
+        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedTopic);
     }
 
     [Fact]
@@ -61,7 +55,7 @@ public class EmulatorValidationTests
 
         // Create the EventGrid subscriber
         using var subscriber = new FactoryClientBuilder(handler)
-            .WithTopic(this.ExpectedTopic, "https://localhost/orders-webhook")
+            .WithTopic(ExpectedTopic, "https://localhost/orders-webhook")
             .Build();
 
         // Create the EventGrid publisher
@@ -81,7 +75,7 @@ public class EmulatorValidationTests
         var result = @event.Single()["data"].Deserialize<DataModel>();
         var receivedTopic = @event.Single()["source"].Deserialize<string>();
         Assert.Equal("data", result?.Some);
-        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{this.ExpectedTopic}", receivedTopic);
+        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedTopic);
     }
 
     private sealed class DataModel

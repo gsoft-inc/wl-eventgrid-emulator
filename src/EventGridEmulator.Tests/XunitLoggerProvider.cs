@@ -25,6 +25,7 @@ internal sealed class XunitLoggerProvider : ILoggerProvider, ILogger
         return this;
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("ApiDesign", "RS0030:Do not use banned APIs", Justification = "We prefer local time as this is displayed to a user")]
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         var message = formatter(state, exception);

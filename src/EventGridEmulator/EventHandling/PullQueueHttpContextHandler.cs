@@ -144,7 +144,7 @@ internal sealed class EventObject
 {
     public BrokerProperties? BrokerProperties { get; set; }
 
-    public CloudEvent? Event { get; set; } 
+    public CloudEvent? Event { get; set; }
 }
 
 internal sealed class BrokerProperties

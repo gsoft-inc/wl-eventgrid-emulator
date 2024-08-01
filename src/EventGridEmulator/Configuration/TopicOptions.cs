@@ -38,7 +38,7 @@ internal sealed class TopicOptions
             }
         }
     }
-    
+
     public IEnumerable<PullSubscriber> GetPullSubscribers(string topic)
     {
         if (!this.Topics.TryGetValue(topic, out var subscribers))

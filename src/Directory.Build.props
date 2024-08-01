@@ -4,24 +4,17 @@
     <Copyright>Copyright © Workleap. $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
     <Authors>Workleap</Authors>
     <Owners>Workleap</Owners>
-    <PackageProjectUrl>https://github.com/gsoft-inc/wl-eventgrid-emulator</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AnalysisLevel>latest-All</AnalysisLevel>
     <Description>Azure Event Grid unofficial emulator.</Description>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+    <PackageReference Include="Workleap.DotNet.CodingStandards" Version="0.6.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
