@@ -14,7 +14,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B97A8AFE-5A07-4C1B-8CCA-23D53248D58A}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
-		global.json = global.json
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

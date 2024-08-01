@@ -16,7 +16,7 @@ internal static class EventsSerializer
             return null;
         }
     }
-    
+
     public static async Task<T?> DeserializeEventAsync<T>(HttpContext context)
     {
         try

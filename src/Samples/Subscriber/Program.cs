@@ -19,4 +19,4 @@ app.MapPost("/webhook-slow-200", async (EventGridEvent[] events, CancellationTok
     return Results.Ok();
 });
 
-app.Run(); 
+app.Run();

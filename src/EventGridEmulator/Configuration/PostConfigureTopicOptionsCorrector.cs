@@ -10,11 +10,7 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
 {
     public void PostConfigure(string? name, TopicOptions options)
     {
-        if (options.Topics == null)
-        {
-            options.Topics = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
-        }
-
+        options.Topics ??= new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
         options.Topics = CorrectTopics(options.Topics);
     }
 

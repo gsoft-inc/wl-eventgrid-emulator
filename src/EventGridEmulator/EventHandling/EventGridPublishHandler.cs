@@ -7,7 +7,7 @@ internal sealed class EventGridPublishHandler
 {
     [StringSyntax("Route")]
     public const string CustomTopicRoute = "/{topic}/api/events";
-    
+
     [StringSyntax("Route")]
     public const string NamespaceTopicRoute = "/topics/{topic}:publish";
 
@@ -28,13 +28,13 @@ internal sealed class EventGridPublishHandler
     {
         await handler.HandleAsync(context, topic);
     }
-    
+
     public static async Task<IResult> HandleNamespaceTopicEventAsync(HttpContext context, [FromRoute] string topic, [FromServices] EventGridPublishHandler handler)
     {
         await handler.HandleAsync(context, topic);
         return Results.Ok(new object());
     }
-    
+
     private Task HandleAsync(HttpContext context, string topic) => context.Request.ContentType switch
     {
         EventGridEventContentType => this._eventGridEventHttpContextHandler.HandleAsync(context, topic),
