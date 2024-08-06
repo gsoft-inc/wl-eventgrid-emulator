@@ -60,9 +60,11 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
             return Results.BadRequest();
         }
 
+        var hasSubscribers = false;
         var pushSubscriber = this._options.CurrentValue.GetPushSubscribers(topic);
         foreach (var subscriber in pushSubscriber)
         {
+            hasSubscribers = true;
             var cancellationToken = this._cancellationTokenRegistry.Get(topic, subscriber.Uri);
             this.EnhanceEventData(events, topic);
             _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber.Uri, events, cancellationToken);
@@ -75,12 +77,18 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
 
         foreach (var subscriber in this._options.CurrentValue.GetPullSubscribers(topic))
         {
+            hasSubscribers = true;
             this._eventQueue.AddEvent(topic, subscriber.SubscriptionName, events);
 
             if (this._logger.IsEnabled(LogLevel.Information))
             {
                 this._logger.LogInformation("Event from topic '{Topic}' enqueued for subscriber '{SubscriberName}' with payload '{Events}'", topic, subscriber.SubscriptionName, EventsSerializer.SerializeEventsForDebugPurposes(events));
             }
+        }
+
+        if (!hasSubscribers)
+        {
+            this._logger.LogWarning("No subscriber for topic '{Topic}'. Payload: '{Events}'", topic, EventsSerializer.SerializeEventsForDebugPurposes(events));
         }
 
         return Results.Ok();
