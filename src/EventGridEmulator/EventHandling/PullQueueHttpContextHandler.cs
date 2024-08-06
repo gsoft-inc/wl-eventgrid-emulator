@@ -40,7 +40,7 @@ internal sealed class PullQueueHttpContextHandler
         };
 
         if (logger.IsEnabled(LogLevel.Information))
-{
+        {
             logger.LogInformation("Event pulled from topic '{Topic}' for subscription '{SubscriberName}' with payload '{Payload}'", topic, subscription, EventsSerializer.SerializeEventsForDebugPurposes(receiveResults));
         }
 
