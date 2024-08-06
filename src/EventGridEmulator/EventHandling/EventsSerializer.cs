@@ -4,6 +4,8 @@ namespace EventGridEmulator.EventHandling;
 
 internal static class EventsSerializer
 {
+    private static readonly JsonSerializerOptions LoggerSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
+
     public static async Task<T[]?> DeserializeEventsAsync<T>(HttpContext context)
     {
         try
@@ -28,5 +30,10 @@ internal static class EventsSerializer
         {
             return default;
         }
+    }
+
+    public static string SerializeEventsForDebugPurposes<T>(T events)
+    {
+        return JsonSerializer.Serialize(events, LoggerSerializerOptions);
     }
 }

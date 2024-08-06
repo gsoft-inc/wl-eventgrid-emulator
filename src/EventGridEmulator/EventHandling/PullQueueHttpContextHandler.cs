@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Messaging;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ internal sealed class PullQueueHttpContextHandler
     [StringSyntax("Route")]
     public const string RejectRoute = "topics/{topic}/eventsubscriptions/{subscription}:reject";
 
-    public static async Task<IResult> HandleReceiveAsync([FromRoute] string topic, [FromRoute] string subscription, [FromServices] TopicSubscribers<CloudEvent> topicSubscribers, CancellationToken cancellationToken)
+    public static async Task<IResult> HandleReceiveAsync([FromServices] ILogger<PullQueueHttpContextHandler> logger, [FromRoute] string topic, [FromRoute] string subscription, [FromServices] TopicSubscribers<CloudEvent> topicSubscribers, CancellationToken cancellationToken)
     {
         var result = await topicSubscribers.GetEventAsync(topic, subscription, cancellationToken);
         var receiveResults = new ReceiveResults
@@ -37,6 +38,12 @@ internal sealed class PullQueueHttpContextHandler
                 },
             },
         };
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("Event pulled from topic '{Topic}' for subscription '{SubscriberName}' with payload '{Payload}'", topic, subscription, EventsSerializer.SerializeEventsForDebugPurposes(receiveResults));
+        }
+
         return Results.Ok(receiveResults);
     }
 
