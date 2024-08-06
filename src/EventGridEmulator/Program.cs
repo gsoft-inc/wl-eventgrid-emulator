@@ -40,6 +40,8 @@ builder.Services.AddSingleton(typeof(TopicSubscribers<>));
 builder.Services.AddHostedService<ApplicationLifetimeLoggingHostedService>();
 builder.Services.AddHostedService<PeriodicConfigurationReloadHostedService>();
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 app.MapPost(EventGridPublishHandler.CustomTopicRoute, EventGridPublishHandler.HandleCustomTopicEventAsync);
@@ -48,6 +50,8 @@ app.MapPost(PullQueueHttpContextHandler.ReceiveRoute, PullQueueHttpContextHandle
 app.MapPost(PullQueueHttpContextHandler.AcknowledgeRoute, PullQueueHttpContextHandler.HandleAcknowledgeAsync);
 app.MapPost(PullQueueHttpContextHandler.ReleaseRoute, PullQueueHttpContextHandler.HandleReleaseAsync);
 app.MapPost(PullQueueHttpContextHandler.RejectRoute, PullQueueHttpContextHandler.HandleRejectAsync);
+
+app.MapHealthChecks("/health");
 
 app.Run();
 

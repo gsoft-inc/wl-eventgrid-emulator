@@ -1,4 +1,3 @@
-#pragma warning disable SA1121 // Use built-in type alias, doesn't work well with type aliases
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Threading.Channels;

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 using Microsoft.Extensions.Options;
@@ -65,11 +66,21 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
             var cancellationToken = this._cancellationTokenRegistry.Get(topic, subscriber.Uri);
             this.EnhanceEventData(events, topic);
             _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber.Uri, events, cancellationToken);
+
+            if (this._logger.IsEnabled(LogLevel.Information))
+            {
+                this._logger.LogInformation("Event from topic '{Topic}' sent to '{SubscriberUri}' with payload '{Events}'", topic, subscriber.Uri, EventsSerializer.SerializeEventsForDebugPurposes(events));
+            }
         }
 
         foreach (var subscriber in this._options.CurrentValue.GetPullSubscribers(topic))
         {
             this._eventQueue.AddEvent(topic, subscriber.SubscriptionName, events);
+
+            if (this._logger.IsEnabled(LogLevel.Information))
+            {
+                this._logger.LogInformation("Event from topic '{Topic}' enqueued for subscriber '{SubscriberName}' with payload '{Events}'", topic, subscriber.SubscriptionName, EventsSerializer.SerializeEventsForDebugPurposes(events));
+            }
         }
 
         return Results.Ok();

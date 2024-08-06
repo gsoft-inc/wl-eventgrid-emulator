@@ -15,11 +15,13 @@ internal sealed class EventGridPublishHandler
     private const string CloudEventBatchContentType = "application/cloudevents-batch+json; charset=utf-8";
     private const string EventGridEventContentType = "application/json";
 
+    private readonly ILogger<EventGridPublishHandler> _logger;
     private readonly IEventGridEventHttpContextHandler _eventGridEventHttpContextHandler;
     private readonly ICloudEventHttpContextHandler _cloudEventHttpContextHandler;
 
-    public EventGridPublishHandler(IEventGridEventHttpContextHandler eventGridEventHttpContextHandler, ICloudEventHttpContextHandler cloudEventHttpContextHandler)
+    public EventGridPublishHandler(ILogger<EventGridPublishHandler> logger, IEventGridEventHttpContextHandler eventGridEventHttpContextHandler, ICloudEventHttpContextHandler cloudEventHttpContextHandler)
     {
+        this._logger = logger;
         this._eventGridEventHttpContextHandler = eventGridEventHttpContextHandler;
         this._cloudEventHttpContextHandler = cloudEventHttpContextHandler;
     }
@@ -35,11 +37,22 @@ internal sealed class EventGridPublishHandler
         return Results.Ok(new object());
     }
 
-    private Task HandleAsync(HttpContext context, string topic) => context.Request.ContentType switch
+    private Task HandleAsync(HttpContext context, string topic)
     {
-        EventGridEventContentType => this._eventGridEventHttpContextHandler.HandleAsync(context, topic),
-        CloudEventContentType => this._cloudEventHttpContextHandler.HandleAsync(context, topic, batch: false),
-        CloudEventBatchContentType => this._cloudEventHttpContextHandler.HandleAsync(context, topic, batch: true),
-        _ => Results.BadRequest().ExecuteAsync(context),
-    };
+        switch (context.Request.ContentType)
+        {
+            case EventGridEventContentType:
+                return this._eventGridEventHttpContextHandler.HandleAsync(context, topic);
+
+            case CloudEventContentType:
+                return this._cloudEventHttpContextHandler.HandleAsync(context, topic, batch: false);
+
+            case CloudEventBatchContentType:
+                return this._cloudEventHttpContextHandler.HandleAsync(context, topic, batch: true);
+
+            default:
+                this._logger.LogWarning("Content type '{ContentType}' is not supported", context.Request.ContentType);
+                return Results.BadRequest().ExecuteAsync(context);
+        }
+    }
 }
