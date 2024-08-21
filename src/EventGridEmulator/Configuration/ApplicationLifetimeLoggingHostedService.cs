@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using EventGridEmulator.EventHandling;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -100,6 +100,14 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                     : "Reloaded topics and subscribers:{Configuration}";
 
                 this._logger.LogInformation(messageTemplate, sb.ToString());
+
+                if (options.InvalidUrls?.Count > 0)
+                {
+                    foreach (var error in options.InvalidUrls)
+                    {
+                        this._logger.LogWarning("- Invalid URL detected in configuration: {Error}", error);
+                    }
+                }
             }
 
             this._previousOptions = options;

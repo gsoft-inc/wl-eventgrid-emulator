@@ -4,6 +4,8 @@ namespace EventGridEmulator.Configuration;
 
 internal sealed class TopicOptions
 {
+    private const string PullScheme = "pull";
+
     public TopicOptions()
     {
     }
@@ -21,7 +23,13 @@ internal sealed class TopicOptions
         }
     }
 
+    public HashSet<string>? InvalidUrls { get; set; }
     public Dictionary<string, string[]> Topics { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+
+    internal static bool IsValidScheme(Uri uri)
+    {
+        return IsHttpOrHttps(uri) || IsPullScheme(uri);
+    }
 
     public IEnumerable<PushSubscriber> GetPushSubscribers(string topic)
     {
@@ -32,7 +40,7 @@ internal sealed class TopicOptions
 
         foreach (var value in subscribers)
         {
-            if (Uri.TryCreate(value, UriKind.Absolute, out var url) && (url.Scheme == Uri.UriSchemeHttp || url.Scheme == Uri.UriSchemeHttps))
+            if (Uri.TryCreate(value, UriKind.Absolute, out var url) && IsHttpOrHttps(url))
             {
                 yield return new PushSubscriber(url.OriginalString);
             }
@@ -49,12 +57,15 @@ internal sealed class TopicOptions
         foreach (var value in subscribers)
         {
             // pull://subscriptionName
-            if (Uri.TryCreate(value, UriKind.Absolute, out var url) && url.Scheme == "pull")
+            if (Uri.TryCreate(value, UriKind.Absolute, out var url) && IsPullScheme(url))
             {
                 yield return new PullSubscriber(url.Host);
             }
         }
     }
+
+    private static bool IsHttpOrHttps(Uri uri) => uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+    private static bool IsPullScheme(Uri uri) => string.Equals(uri.Scheme, PullScheme, StringComparison.OrdinalIgnoreCase);
 
     public override bool Equals(object? obj)
     {
