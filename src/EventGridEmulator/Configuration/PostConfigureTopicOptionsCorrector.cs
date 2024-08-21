@@ -11,12 +11,15 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
     public void PostConfigure(string? name, TopicOptions options)
     {
         options.Topics ??= new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
-        options.Topics = CorrectTopics(options.Topics);
+        var (topics, invalidUrls) = CorrectTopics(options.Topics);
+        options.Topics = topics;
+        options.InvalidUrls = invalidUrls;
     }
 
-    private static Dictionary<string, string[]> CorrectTopics(Dictionary<string, string[]> topics)
+    private static (Dictionary<string, string[]> Topics, HashSet<string>? InvalidUrls) CorrectTopics(Dictionary<string, string[]> topics)
     {
         var correctedTopics = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string>? errors = null;
 
         foreach (var (topic, subscribers) in topics)
         {
@@ -35,9 +38,14 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
 
             foreach (var subscriber in subscribers)
             {
-                if (Uri.TryCreate(subscriber, UriKind.Absolute, out var subscriberUri))
+                if (Uri.TryCreate(subscriber, UriKind.Absolute, out var subscriberUri) && TopicOptions.IsValidScheme(subscriberUri))
                 {
                     correctedSubscribers.Add(subscriberUri.ToString());
+                }
+                else if (!string.IsNullOrWhiteSpace(subscriber))
+                {
+                    errors ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    errors.Add(subscriber);
                 }
             }
 
@@ -52,6 +60,6 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
             correctedTopics[topic] = new HashSet<string>(subscribers, StringComparer.OrdinalIgnoreCase).ToArray();
         }
 
-        return correctedTopics;
+        return (correctedTopics, errors);
     }
 }
