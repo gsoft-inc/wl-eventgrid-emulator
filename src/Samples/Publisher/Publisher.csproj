@@ -8,6 +8,6 @@
 
     <ItemGroup>
         <PackageReference Include="Azure.Identity" Version="1.12.0" />
-        <PackageReference Include="Azure.Messaging.EventGrid" Version="4.24.1" />
+        <PackageReference Include="Azure.Messaging.EventGrid" Version="4.25.0" />
     </ItemGroup>
 </Project>
