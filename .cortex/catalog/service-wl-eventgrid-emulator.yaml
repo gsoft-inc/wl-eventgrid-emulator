@@ -1,0 +1,22 @@
+openapi: 3.0.1
+info:
+  title: Workleap EventGrid Emulator
+  x-cortex-git:
+    github:
+      alias: gsoft-inc
+      repository: gsoft-inc/wl-eventgrid-emulator
+  x-cortex-tag: service-wl-eventgrid-emulator
+  x-cortex-type: service
+  x-cortex-slack:
+    channels:
+    - name: internal-dev-platform
+      notificationsEnabled: true
+  x-cortex-owners:
+  - name: team-internal-developer-platform-backend
+    type: GROUP
+    provider: CORTEX
+  x-cortex-link:
+  - type: cortex
+    url: https://github.com/gsoft-inc/wl-eventgrid-emulator/blob/main/.cortex/catalog/service-wl-eventgrid-emulator.yaml
+    name: Edit current Cortex entity in GitHub
+
