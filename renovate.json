@@ -1,6 +1,17 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-      "github>gsoft-inc/renovate-config"
-    ]
-  }
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>gsoft-inc/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "nuget"
+      ],
+      "matchPackageNames": [
+        "NuGet Azure.Messaging.EventGrid"
+      ],
+      "groupName": "NuGet Azure.Messaging.EventGrid"
+    }
+  ]
+}
