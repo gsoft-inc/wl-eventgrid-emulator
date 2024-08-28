@@ -1,47 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "platform": "github",
-  "labels": ["renovate"],
   "extends": [
-    "config:base",
-    ":rebaseStalePrs",
-    "docker:disableMajor"
-  ],
-  "enabledManagers": [
-    "nuget",
-    "dockerfile",
-    "github-actions"
-  ],
-  "stabilityDays": 3,
-  "prHourlyLimit": 0,
-  "prConcurrentLimit": 0,
-  "branchConcurrentLimit": 0,
-  "dependencyDashboard": false,
-  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
-  "nuget": {
-    "extends": [":disableMajorUpdates"]
-  },
-  "packageRules": [
-    {
-      "matchManagers": ["nuget"],
-      "groupName": "NuGet dependencies"
-    },    
-    {
-      "matchManagers": ["nuget"],
-      "matchPackageNames": ["NuGet Azure.Messaging.EventGrid"],
-      "groupName": "NuGet Azure.Messaging.EventGrid"
-    },
-    {
-      "matchManagers": ["dockerfile"],
-      "groupName": "Docker"
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "groupName": "Pipeline dependencies"
-    }
-  ],
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "labels": ["security"]
-  }
+    "github>gsoft-inc/renovate-config"
+  ]
 }
