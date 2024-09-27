@@ -6,7 +6,7 @@ info:
       alias: gsoft-inc
       repository: gsoft-inc/wl-eventgrid-emulator
   x-cortex-tag: service-wl-eventgrid-emulator
-  x-cortex-type: service
+  x-cortex-type: library
   x-cortex-slack:
     channels:
     - name: internal-dev-platform
