@@ -55,6 +55,30 @@ In the example for push delivery, we have two topics, `topic1` and `topic2`. If 
 
 In the example for pull delivery, we have a topics, `topicfoobar`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topics/topicfoobar:publish`, the emulator would make the events available to pull at `pull://foo-subscription` and `pull://bar-subscription` on your host machine.
 
+### Event filtering
+The emulator supports event type filtering for subscriptions, similar to the functionality provided by [Event Grid](https://learn.microsoft.com/en-us/azure/event-grid/event-filtering#event-type-filtering).
+By default, all event types for a topic are delivered to the configured endpoints. However, you can choose to send only specific event types to an endpoint by defining filters in the configuration file.
+
+To enable event type filtering, include a `Filters` section in your `appsettings.json` configuration file. For example:
+
+```json
+{
+  "Topics": {
+    "topicfoobar": [
+      "pull://foo-subscription",
+      "pull://bar-subscription"
+    ]
+  },
+  "Filters": {
+    "foo-subscription": {
+      "IncludedEventTypes": ["Baz.EventType"]
+    }
+  }
+}
+```
+In this example, events published to the topicfoobar topic are delivered to both foo-subscription and bar-subscription, but only events with the type Baz.EventType are delivered to foo-subscription, while all event types are delivered to bar-subscription.
+Filtering is currently based solely on the eventType property and does not support other filter types like subject or advanced filters.
+
 **Run the Event Grid emulator with docker run**
 
 ```bash

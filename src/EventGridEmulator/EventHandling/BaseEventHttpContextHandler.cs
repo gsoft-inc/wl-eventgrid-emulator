@@ -1,4 +1,3 @@
-using System.Text.Json;
 using EventGridEmulator.Configuration;
 using EventGridEmulator.Network;
 using Microsoft.Extensions.Options;
@@ -64,10 +63,16 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
         var pushSubscriber = this._options.CurrentValue.GetPushSubscribers(topic);
         foreach (var subscriber in pushSubscriber)
         {
+            var filteredEvents = this.FilterEvents(events, subscriber.Uri);
+            if (filteredEvents.Length == 0)
+            {
+                continue;
+            }
+
             hasSubscribers = true;
             var cancellationToken = this._cancellationTokenRegistry.Get(topic, subscriber.Uri);
             this.EnhanceEventData(events, topic);
-            _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber.Uri, events, cancellationToken);
+            _ = this.SendEventsToSubscriberFireAndForget(topic, subscriber.Uri, filteredEvents, cancellationToken);
 
             if (this._logger.IsEnabled(LogLevel.Information))
             {
@@ -77,8 +82,14 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
 
         foreach (var subscriber in this._options.CurrentValue.GetPullSubscribers(topic))
         {
+            var filteredEvents = this.FilterEvents(events, subscriber.SubscriptionName);
+            if (filteredEvents.Length == 0)
+            {
+                continue;
+            }
+
             hasSubscribers = true;
-            this._eventQueue.AddEvent(topic, subscriber.SubscriptionName, events);
+            this._eventQueue.AddEvent(topic, subscriber.SubscriptionName, filteredEvents);
 
             if (this._logger.IsEnabled(LogLevel.Information))
             {
@@ -92,6 +103,21 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
         }
 
         return Results.Ok();
+    }
+
+    private TEvent[] FilterEvents(TEvent[] events, string subscription)
+    {
+        if (this._options.CurrentValue.Filters.TryGetValue(subscription, out var filter))
+        {
+            this._logger.LogInformation(
+                "Filtering events for {Subscription} based on filter: {Filter}",
+                subscription,
+                filter
+            );
+            return this.FilterEvents(events, filter);
+        }
+
+        return events;
     }
 
     private async Task SendEventsToSubscriberFireAndForget(string topic, string subscriber, TEvent[] events, CancellationToken cancellationToken)
@@ -124,4 +150,6 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
     protected virtual void EnhanceEventData(IEnumerable<TEvent> events, string topicName)
     {
     }
+
+    protected abstract TEvent[] FilterEvents(TEvent[] events, Filter filter);
 }

@@ -77,19 +77,38 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                 var sb = new StringBuilder();
                 sb.AppendLine();
 
-                var linesAdded = 0;
+                if (options.Topics.Count > 0)
+                {
+                    sb.Append("Topics: ");
+                }
+
+                var topicsAdded = 0;
                 foreach (var (topic, subscribers) in options.Topics)
                 {
-                    if (linesAdded > 0)
+                    sb.AppendLine();
+                    sb.Append(" - ").Append(topic).Append(": ").AppendJoin(", ", subscribers);
+                    topicsAdded++;
+                }
+
+                if (options.Filters.Count > 0)
+                {
+                    if (topicsAdded > 0)
                     {
                         sb.AppendLine();
                     }
 
-                    sb.Append(" - ").Append(topic).Append(": ").AppendJoin(", ", subscribers);
-                    linesAdded++;
+                    sb.Append("Filters: ");
                 }
 
-                if (linesAdded == 0)
+                var filtersAdded = 0;
+                foreach (var (subscription, filter) in options.Filters)
+                {
+                    sb.AppendLine();
+                    sb.Append(" - ").Append(subscription).Append(": ").Append(filter);
+                    filtersAdded++;
+                }
+
+                if (topicsAdded == 0 && filtersAdded == 0)
                 {
                     sb.Append(" - Configuration is empty");
                 }

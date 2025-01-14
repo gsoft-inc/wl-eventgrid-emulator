@@ -24,4 +24,11 @@ internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHandler
             @event.Source = $"{SubscriberConstants.DefaultTopicValue}{topicName}";
         }
     }
+
+    protected override CloudEvent[] FilterEvents(CloudEvent[] events, Filter filter)
+    {
+        return filter.IncludedEventTypes == null
+            ? events
+            : events.Where(e => filter.IncludedEventTypes.Contains(e.Type)).ToArray();
+    }
 }

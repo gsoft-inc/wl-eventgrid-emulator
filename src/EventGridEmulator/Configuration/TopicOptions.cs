@@ -21,10 +21,16 @@ internal sealed class TopicOptions
             Array.Copy(subscribers, subscribersCopy, subscribers.Length);
             this.Topics.Add(topic, subscribersCopy);
         }
+
+        foreach (var (subscription, filter) in original.Filters)
+        {
+            this.Filters.Add(subscription, new Filter(filter));
+        }
     }
 
     public HashSet<string>? InvalidUrls { get; set; }
-    public Dictionary<string, string[]> Topics { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string[]> Topics { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, Filter> Filters { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     internal static bool IsValidScheme(Uri uri)
     {
@@ -74,55 +80,39 @@ internal sealed class TopicOptions
             return true;
         }
 
-        return obj is TopicOptions other && this.Equals(other);
-    }
-
-    private bool Equals(TopicOptions other) => (this.Topics, other.Topics) switch
-    {
-        (null, null) => true,
-        (not null, null) => false,
-        (null, not null) => false,
-        (not null, not null) => this.TopicsEquals(other),
-    };
-
-    private bool TopicsEquals(TopicOptions other)
-    {
-        if (this.Topics.Count != other.Topics.Count)
+        if (obj is not TopicOptions other)
         {
             return false;
         }
 
-        foreach (var (topicName, subscribers) in this.Topics)
-        {
-            if (!other.Topics.TryGetValue(topicName, out var otherSubscribers))
-            {
-                return false;
-            }
-
-            if (!subscribers.SequenceEqual(otherSubscribers, StringComparer.Ordinal))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        Console.WriteLine($"count: {this.Topics.Count}, {other.Topics.Count}");
+        return this.Topics.Count == other.Topics.Count
+            && this.Topics.All(kv =>
+                other.Topics.TryGetValue(kv.Key, out var value) && kv.Value.SequenceEqual(value)
+            )
+            && this.Filters.Count == other.Filters.Count
+            && this.Filters.All(kv =>
+                other.Filters.TryGetValue(kv.Key, out var value) && kv.Value.Equals(value)
+            );
     }
 
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "This is a DTO, also we don't plan on storing this in a hash table.")]
     public override int GetHashCode()
     {
-        unchecked
+        var hash = new HashCode();
+        foreach (var kv in this.Topics.OrderBy(k => k.Key))
         {
-            var hash = 17;
-
-            foreach (var pair in this.Topics)
-            {
-                hash = hash * 23 + pair.Key.GetHashCode();
-                hash = hash * 23 + (pair.Value != null ? pair.Value.GetHashCode() : 0);
-            }
-
-            return hash;
+            hash.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
+            hash.Add(kv.Value);
         }
+
+        foreach (var kv in this.Filters.OrderBy(k => k.Key))
+        {
+            hash.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
+            hash.Add(kv.Value);
+        }
+
+        return hash.ToHashCode();
     }
 }
 
