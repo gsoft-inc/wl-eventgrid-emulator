@@ -85,7 +85,6 @@ internal sealed class TopicOptions
             return false;
         }
 
-        Console.WriteLine($"count: {this.Topics.Count}, {other.Topics.Count}");
         return this.Topics.Count == other.Topics.Count
             && this.Topics.All(kv =>
                 other.Topics.TryGetValue(kv.Key, out var value) && kv.Value.SequenceEqual(value)
