@@ -107,7 +107,10 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
 
     private TEvent[] FilterEvents(TEvent[] events, string subscription)
     {
-        if (this._options.CurrentValue.Filters.TryGetValue(subscription, out var filter))
+        var filter = this._options.CurrentValue.Filters.FirstOrDefault(f =>
+            f.Subscription.Equals(subscription, StringComparison.OrdinalIgnoreCase)
+        );
+        if (filter != null)
         {
             this._logger.LogInformation(
                 "Filtering events for {Subscription} based on filter: {Filter}",

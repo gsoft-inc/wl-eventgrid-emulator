@@ -22,15 +22,12 @@ internal sealed class TopicOptions
             this.Topics.Add(topic, subscribersCopy);
         }
 
-        foreach (var (subscription, filter) in original.Filters)
-        {
-            this.Filters.Add(subscription, new Filter(filter));
-        }
+        this.Filters = original.Filters.Select(f => new Filter(f)).ToArray();
     }
 
     public HashSet<string>? InvalidUrls { get; set; }
     public Dictionary<string, string[]> Topics { get; set; } = new(StringComparer.OrdinalIgnoreCase);
-    public Dictionary<string, Filter> Filters { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Filter[] Filters { get; set; } = [];
 
     internal static bool IsValidScheme(Uri uri)
     {
@@ -89,10 +86,8 @@ internal sealed class TopicOptions
             && this.Topics.All(kv =>
                 other.Topics.TryGetValue(kv.Key, out var value) && kv.Value.SequenceEqual(value)
             )
-            && this.Filters.Count == other.Filters.Count
-            && this.Filters.All(kv =>
-                other.Filters.TryGetValue(kv.Key, out var value) && kv.Value.Equals(value)
-            );
+            && this.Filters.Length == other.Filters.Length
+            && this.Filters.SequenceEqual(other.Filters);
     }
 
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "This is a DTO, also we don't plan on storing this in a hash table.")]
@@ -105,10 +100,9 @@ internal sealed class TopicOptions
             hash.Add(kv.Value);
         }
 
-        foreach (var kv in this.Filters.OrderBy(k => k.Key))
+        foreach (var filter in this.Filters)
         {
-            hash.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
-            hash.Add(kv.Value);
+            hash.Add(filter.GetHashCode());
         }
 
         return hash.ToHashCode();

@@ -69,11 +69,12 @@ To enable event type filtering, include a `Filters` section in your `appsettings
       "pull://bar-subscription"
     ]
   },
-  "Filters": {
-    "foo-subscription": {
+  "Filters": [
+    {
+      "Subscription": "foo-subscription",
       "IncludedEventTypes": ["Baz.EventType"]
     }
-  }
+  ]
 }
 ```
 In this example, events published to the topicfoobar topic are delivered to both foo-subscription and bar-subscription, but only events with the type Baz.EventType are delivered to foo-subscription, while all event types are delivered to bar-subscription.

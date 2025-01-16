@@ -90,7 +90,7 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                     topicsAdded++;
                 }
 
-                if (options.Filters.Count > 0)
+                if (options.Filters.Length > 0)
                 {
                     if (topicsAdded > 0)
                     {
@@ -101,10 +101,10 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                 }
 
                 var filtersAdded = 0;
-                foreach (var (subscription, filter) in options.Filters)
+                foreach (var filter in options.Filters)
                 {
                     sb.AppendLine();
-                    sb.Append(" - ").Append(subscription).Append(": ").Append(filter);
+                    sb.Append(" - ").Append(filter);
                     filtersAdded++;
                 }
 

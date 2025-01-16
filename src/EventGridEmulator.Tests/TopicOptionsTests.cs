@@ -29,14 +29,14 @@ public class TopicOptionsTests
     {
         var optionsA = new TopicOptions
         {
-            Topics = new Dictionary<string, string[]> { ["a"] = new[] { "b", "c", } },
-            Filters = new Dictionary<string, Filter> { ["b"] = new Filter() { IncludedEventTypes = ["f"] } },
+            Topics = new Dictionary<string, string[]> { ["a"] = ["b", "c"] },
+            Filters = [new Filter() { Subscription = "b", IncludedEventTypes = ["f"] }],
         };
 
         var optionsB = new TopicOptions
         {
-            Topics = new Dictionary<string, string[]> { ["a"] = new[] { "b", "c", } },
-            Filters = new Dictionary<string, Filter> { ["b"] = new Filter() { IncludedEventTypes = ["f"] } },
+            Topics = new Dictionary<string, string[]> { ["a"] = ["b", "c"] },
+            Filters = [new Filter() { Subscription = "b", IncludedEventTypes = ["f"] }],
         };
 
         var optionsC = new TopicOptions(optionsB);

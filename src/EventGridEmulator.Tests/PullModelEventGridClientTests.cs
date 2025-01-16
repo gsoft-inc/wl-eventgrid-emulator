@@ -117,7 +117,11 @@ public sealed class PullModelEventGridClientTests
     {
         var topicName = "customers";
         var eventSubscriptionName = "CustomSubscription";
-        var filter = new Filter() { IncludedEventTypes = ["CustomerUpdated", "CustomerCreated"] };
+        var filter = new Filter()
+        {
+            Subscription = eventSubscriptionName,
+            IncludedEventTypes = ["CustomerUpdated", "CustomerCreated"],
+        };
 
         var (publisher, receiver) = await this.CreateTestEventGridClient(
             topicName,
@@ -159,10 +163,7 @@ public sealed class PullModelEventGridClientTests
                 };
                 if (eventTypes != null)
                 {
-                    topicOptions.Filters = new(StringComparer.OrdinalIgnoreCase)
-                    {
-                        [eventSubscriptionName] = eventTypes
-                    };
+                    topicOptions.Filters = [eventTypes];
                 }
             });
         });

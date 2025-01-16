@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace EventGridEmulator.Configuration;
 
 /// <summary>
@@ -6,23 +8,31 @@ namespace EventGridEmulator.Configuration;
 /// </summary>
 public class Filter
 {
-    public Filter(Filter other)
-    {
-        this.IncludedEventTypes = other.IncludedEventTypes?.ToArray();
-    }
+    public required string Subscription { get; set; }
+    public string[]? IncludedEventTypes { get; set; }
 
     public Filter() { }
 
-    public string[]? IncludedEventTypes { get; set; }
+    [SetsRequiredMembers]
+    public Filter(Filter other)
+    {
+        this.Subscription = other.Subscription;
+        this.IncludedEventTypes = other.IncludedEventTypes?.ToArray();
+    }
 
     public override string ToString()
     {
-        return $"Filter {{ IncludedEventTypes = [{string.Join(", ", this.IncludedEventTypes ?? [])}] }}";
+        return $"Filter {{ Subscription = {this.Subscription}, IncludedEventTypes = [{string.Join(", ", this.IncludedEventTypes ?? [])}] }}";
     }
 
     public override bool Equals(object? obj)
     {
         if (obj is not Filter other)
+        {
+            return false;
+        }
+
+        if (this.Subscription != other.Subscription)
         {
             return false;
         }
@@ -37,6 +47,9 @@ public class Filter
 
     public override int GetHashCode()
     {
-        return this.IncludedEventTypes == null ? 0 : this.IncludedEventTypes.GetHashCode();
+        var hashCode = new HashCode();
+        hashCode.Add(this.Subscription);
+        hashCode.Add(this.IncludedEventTypes == null ? 0 : this.IncludedEventTypes.GetHashCode());
+        return hashCode.ToHashCode();
     }
 }
