@@ -13,6 +13,9 @@ internal static class SubscriberConstants
         // Of course we let HTTP 200 pass through
         HttpStatusCode.OK,
 
+        // HTTP 202 is returned by Event Grid Trigger and cannot force a different status code.
+        HttpStatusCode.Accepted,
+
         // Those cannot be retried based on Event Grid's documentation
         // https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry#retry-schedule
         HttpStatusCode.BadRequest,
