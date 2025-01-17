@@ -19,9 +19,9 @@ internal sealed class CloudEventHttpContextHandler : BaseEventHttpContextHandler
 
     protected override void EnhanceEventData(IEnumerable<CloudEvent> cloudEvents, string topicName)
     {
-        foreach (var @event in cloudEvents)
-        {
-            @event.Source = $"{SubscriberConstants.DefaultTopicValue}{topicName}";
-        }
+        // foreach (var @event in cloudEvents)
+        // {
+        //     @event.Source = $"{SubscriberConstants.DefaultTopicValue}{topicName}";
+        // }
     }
 }
