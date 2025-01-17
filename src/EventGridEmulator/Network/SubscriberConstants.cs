@@ -11,14 +11,13 @@ internal static class SubscriberConstants
     // Message Delivery Status
     // https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry?WT.mc_id=DT-MVP-5003978#message-delivery-status
     public static readonly HashSet<HttpStatusCode> NonRetriableStatusCodes = new HashSet<HttpStatusCode>
-    {      
+    {
         // Success Codes
         HttpStatusCode.OK,
         HttpStatusCode.Created,
         HttpStatusCode.Accepted,
         HttpStatusCode.NonAuthoritativeInformation,
         HttpStatusCode.NoContent,
-        HttpStatusCode.Forbidden,
 
         // Failure Codes
         HttpStatusCode.BadRequest,
