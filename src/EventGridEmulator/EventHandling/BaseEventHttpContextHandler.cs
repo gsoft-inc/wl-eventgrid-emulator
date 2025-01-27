@@ -112,11 +112,7 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
         );
         if (filter != null)
         {
-            this._logger.LogInformation(
-                "Filtering events for {Subscription} based on filter: {Filter}",
-                subscriptionUri,
-                filter
-            );
+            this._logger.LogInformation("Filtering events based on filter: {Filter}", filter);
             return this.FilterEvents(events, filter);
         }
 
