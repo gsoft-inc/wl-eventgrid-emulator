@@ -127,6 +127,11 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                         this._logger.LogWarning("- Invalid URL detected in configuration: {Error}", error);
                     }
                 }
+
+                foreach (var filter in options.InvalidFilters)
+                {
+                    this._logger.LogWarning("- Invalid filter detected in configuration: {Filter}", filter);
+                }
             }
 
             this._previousOptions = options;

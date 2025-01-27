@@ -26,6 +26,7 @@ internal sealed class TopicOptions
     }
 
     public HashSet<string>? InvalidUrls { get; set; }
+    public List<Filter> InvalidFilters { get; set; } = [];
     public Dictionary<string, string[]> Topics { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public Filter[] Filters { get; set; } = [];
 

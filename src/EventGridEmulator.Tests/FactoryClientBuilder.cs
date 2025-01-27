@@ -5,7 +5,8 @@ namespace EventGridEmulator.Tests;
 public class FactoryClientBuilder
 {
     private readonly HttpMessageHandler _handler;
-    private readonly List<Topic> _topics = new List<Topic>();
+    private readonly List<Topic> _topics = [];
+    private readonly List<Filter> _filters = [];
 
     public FactoryClientBuilder(HttpMessageHandler handler)
     {
@@ -18,12 +19,22 @@ public class FactoryClientBuilder
         return this;
     }
 
+    public FactoryClientBuilder WithFilter(Filter filter)
+    {
+        this._filters.Add(filter);
+        return this;
+    }
+
     public HttpClient Build()
     {
         var factory = new SubscriberWebApplicationFactory(
             services =>
             {
-                services.Configure<TopicOptions>(x => x.Topics = this._topics.ToDictionary(k => k.Name, v => new[] { v.Url }));
+                _ = services.Configure<TopicOptions>(x =>
+                {
+                    x.Topics = this._topics.ToDictionary(k => k.Name, v => new[] { v.Url });
+                    x.Filters = [.. this._filters];
+                });
             },
             this._handler);
         return factory.CreateClient();
