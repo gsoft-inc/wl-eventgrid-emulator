@@ -82,7 +82,7 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
 
         foreach (var subscriber in this._options.CurrentValue.GetPullSubscribers(topic))
         {
-            var filteredEvents = this.FilterEvents(events, subscriber.SubscriptionName);
+            var filteredEvents = this.FilterEvents(events, subscriber.Uri);
             if (filteredEvents.Length == 0)
             {
                 continue;
@@ -105,16 +105,16 @@ internal abstract class BaseEventHttpContextHandler<TEvent>
         return Results.Ok();
     }
 
-    private TEvent[] FilterEvents(TEvent[] events, string subscription)
+    private TEvent[] FilterEvents(TEvent[] events, string subscriptionUri)
     {
         var filter = this._options.CurrentValue.Filters.FirstOrDefault(f =>
-            f.Subscription.Equals(subscription, StringComparison.OrdinalIgnoreCase)
+            f.Subscription.Equals(subscriptionUri, StringComparison.OrdinalIgnoreCase)
         );
         if (filter != null)
         {
             this._logger.LogInformation(
                 "Filtering events for {Subscription} based on filter: {Filter}",
-                subscription,
+                subscriptionUri,
                 filter
             );
             return this.FilterEvents(events, filter);

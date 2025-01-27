@@ -63,7 +63,7 @@ internal sealed class TopicOptions
             // pull://subscriptionName
             if (Uri.TryCreate(value, UriKind.Absolute, out var url) && IsPullScheme(url))
             {
-                yield return new PullSubscriber(url.Host);
+                yield return new PullSubscriber(url.Host, url.OriginalString);
             }
         }
     }
@@ -112,4 +112,4 @@ internal sealed class TopicOptions
 
 internal sealed record PushSubscriber(string Uri);
 
-internal sealed record PullSubscriber(string SubscriptionName);
+internal sealed record PullSubscriber(string SubscriptionName, string Uri);

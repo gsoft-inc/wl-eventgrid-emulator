@@ -81,9 +81,13 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
 
         foreach (var filter in options.Filters)
         {
-            if (correctSubscriberNames.TryGetValue(filter.Subscription, out var correctedName))
+            var isValidUrl =
+                Uri.TryCreate(filter.Subscription, UriKind.Absolute, out var uri)
+                || Uri.TryCreate($"pull://{filter.Subscription}", UriKind.Absolute, out uri);
+
+            if (isValidUrl && correctSubscriberNames.TryGetValue(uri!.OriginalString, out var correctName))
             {
-                filter.Subscription = correctedName;
+                filter.Subscription = correctName;
                 filters[validFilterCount++] = filter;
             }
             else
