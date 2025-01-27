@@ -150,7 +150,7 @@ public sealed class PullModelEventGridClientTests
     private async Task<(EventGridPublisherClient, EventGridReceiverClient)> CreateTestEventGridClient(
         string topicName,
         string eventSubscriptionName,
-        Filter? eventTypes = null
+        Filter? filter = null
     )
     {
         var factory = new CustomWebApplicationFactory(options =>
@@ -161,9 +161,9 @@ public sealed class PullModelEventGridClientTests
                 {
                     [topicName] = [$"pull://{eventSubscriptionName}"],
                 };
-                if (eventTypes != null)
+                if (filter != null)
                 {
-                    topicOptions.Filters = [eventTypes];
+                    topicOptions.Filters = [filter];
                 }
             });
         });
