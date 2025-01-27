@@ -11,6 +11,7 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 - Support Push & Pull Delivery Models
 - Push delivery to configured webhooks defined in the emulator configuration file (more details below).
 - Pull delivery API client commands supported in the emulator (more details below).
+* Subscription Filtering based on event type
 - Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
 - Ability to add and remove topics and webhooks at runtime without having to restart the emulator.
 - As the emulator is built on top of ASP.NET Core, you can follow this [Microsoft documentation](https://learn.microsoft.com/en-us/aspnet/core/security/docker-compose-https) to run on HTTPS.
@@ -66,18 +67,27 @@ To enable event type filtering, include a `Filters` section in your `appsettings
   "Topics": {
     "topicfoobar": [
       "pull://foo-subscription",
-      "pull://bar-subscription"
+      "pull://bar-subscription",
+      "http://host.docker.internal:7221/eventgrid"
     ]
   },
   "Filters": [
     {
       "Subscription": "foo-subscription",
       "IncludedEventTypes": ["Baz.EventType"]
+    },
+    {
+      "Subscription": "http://host.docker.internal:7221/eventgrid",
+      "IncludedEventTypes": ["Qux.EventType"]
     }
   ]
 }
 ```
-In this example, events published to the topicfoobar topic are delivered to both foo-subscription and bar-subscription, but only events with the type Baz.EventType are delivered to foo-subscription, while all event types are delivered to bar-subscription.
+In this example, events published to the topicfoobar topic are delivered to the subscriptions `foo-subscription`, `bar-subscription` and `http://host.docker.internal:7221/eventgrid`.
+* Only events with the type `Baz.EventType` are delivered to `foo-subscription`
+* Only events with the type `Quz.EventType` are delivered to `http://host.docker.internal:7221/eventgrid`
+* All event types are delivered to `bar-subscription`
+
 Filtering is currently based solely on the eventType property and does not support other filter types like subject or advanced filters.
 
 **Run the Event Grid emulator with docker run**
