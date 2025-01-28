@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.13.1" />
-        <PackageReference Include="Azure.Messaging.EventGrid" Version="4.28.0" />
+        <PackageReference Include="Azure.Identity" Version="1.13.2" />
+        <PackageReference Include="Azure.Messaging.EventGrid" Version="4.29.0" />
     </ItemGroup>
 </Project>
