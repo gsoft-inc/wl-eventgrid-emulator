@@ -63,7 +63,7 @@ public class EmulatorValidationTests
             .WithEndpoint(new Uri("https://localhost/orders/api/events"))
             .Build();
 
-        // Create and send an event to EventGrid
+        // Create and send an event to EventGrid with an empty source
         var cloudEvent = new CloudEvent("", "bar", new DataModel(some: "data"));
         var response = await publisher.SendEventAsync(cloudEvent);
 
@@ -96,7 +96,7 @@ public class EmulatorValidationTests
             .WithEndpoint(new Uri("https://localhost/orders/api/events"))
             .Build();
 
-        // Create and send an event to EventGrid
+        // Create and send an event to EventGrid with a source
         var cloudEvent = new CloudEvent(originalSource, "bar", new DataModel(some: "data"));
         var response = await publisher.SendEventAsync(cloudEvent);
 
