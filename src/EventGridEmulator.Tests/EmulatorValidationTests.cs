@@ -41,9 +41,9 @@ public class EmulatorValidationTests
         // Assert that the message was successfully received
         var @event = JsonSerializer.Deserialize<JsonObject[]>(message) ?? throw new NullReferenceException("Message cannot be deserialized");
         var result = @event.Single()["data"].Deserialize<DataModel>();
-        var receivedSource = @event.Single()["topic"].Deserialize<string>();
+        var receivedTopic = @event.Single()["topic"].Deserialize<string>();
         Assert.Equal("data", result?.Some);
-        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedSource);
+        Assert.Equal($"{SubscriberConstants.DefaultTopicValue}{ExpectedTopic}", receivedTopic);
     }
 
     [Fact]
