@@ -84,7 +84,7 @@ public class EmulatorValidationTests
         // Define the handler to intercept the message
         var message = string.Empty;
         var originalSource = "SOME_SOURCE_VALUE";
-        HttpMessageHandler handler = new TestHandler(requestAction => message = requestAction);
+        using HttpMessageHandler handler = new TestHandler(requestAction => message = requestAction);
 
         // Create the EventGrid subscriber
         using var subscriber = new FactoryClientBuilder(handler)
