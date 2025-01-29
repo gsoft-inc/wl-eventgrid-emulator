@@ -11,6 +11,7 @@ This project is not affiliated, associated, authorized, endorsed by, or in any w
 - Support Push & Pull Delivery Models
 - Push delivery to configured webhooks defined in the emulator configuration file (more details below).
 - Pull delivery API client commands supported in the emulator (more details below).
+* Subscription Filtering based on event type
 - Simple but durable message delivery and retry based on the [Azure Event Grid documentation](https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry).
 - Ability to add and remove topics and webhooks at runtime without having to restart the emulator.
 - As the emulator is built on top of ASP.NET Core, you can follow this [Microsoft documentation](https://learn.microsoft.com/en-us/aspnet/core/security/docker-compose-https) to run on HTTPS.
@@ -54,6 +55,40 @@ In the example for push delivery, we have two topics, `topic1` and `topic2`. If 
 ```
 
 In the example for pull delivery, we have a topics, `topicfoobar`. If an event is sent to the emulator on this URL `http://127.0.0.1:6500/topics/topicfoobar:publish`, the emulator would make the events available to pull at `pull://foo-subscription` and `pull://bar-subscription` on your host machine.
+
+### Event filtering
+The emulator supports event type filtering for subscriptions, similar to the functionality provided by [Event Grid](https://learn.microsoft.com/en-us/azure/event-grid/event-filtering#event-type-filtering).
+By default, all event types for a topic are delivered to the configured endpoints. However, you can choose to send only specific event types to an endpoint by defining filters in the configuration file.
+
+To enable event type filtering, include a `Filters` section in your `appsettings.json` configuration file. For example:
+
+```json
+{
+  "Topics": {
+    "topicfoobar": [
+      "pull://foo-subscription",
+      "pull://bar-subscription",
+      "http://host.docker.internal:7221/eventgrid"
+    ]
+  },
+  "Filters": [
+    {
+      "Subscription": "foo-subscription",
+      "IncludedEventTypes": ["Baz.EventType"]
+    },
+    {
+      "Subscription": "http://host.docker.internal:7221/eventgrid",
+      "IncludedEventTypes": ["Qux.EventType"]
+    }
+  ]
+}
+```
+In this example, events published to the topicfoobar topic are delivered to the subscriptions `foo-subscription`, `bar-subscription` and `http://host.docker.internal:7221/eventgrid`.
+* Only events with the type `Baz.EventType` are delivered to `foo-subscription`
+* Only events with the type `Quz.EventType` are delivered to `http://host.docker.internal:7221/eventgrid`
+* All event types are delivered to `bar-subscription`
+
+Filtering is currently based solely on the eventType property and does not support other filter types like subject or advanced filters.
 
 **Run the Event Grid emulator with docker run**
 

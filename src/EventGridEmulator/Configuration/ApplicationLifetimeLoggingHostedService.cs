@@ -77,19 +77,38 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                 var sb = new StringBuilder();
                 sb.AppendLine();
 
-                var linesAdded = 0;
+                if (options.Topics.Count > 0)
+                {
+                    sb.Append("Topics: ");
+                }
+
+                var topicsAdded = 0;
                 foreach (var (topic, subscribers) in options.Topics)
                 {
-                    if (linesAdded > 0)
+                    sb.AppendLine();
+                    sb.Append(" - ").Append(topic).Append(": ").AppendJoin(", ", subscribers);
+                    topicsAdded++;
+                }
+
+                if (options.Filters.Length > 0)
+                {
+                    if (topicsAdded > 0)
                     {
                         sb.AppendLine();
                     }
 
-                    sb.Append(" - ").Append(topic).Append(": ").AppendJoin(", ", subscribers);
-                    linesAdded++;
+                    sb.Append("Filters: ");
                 }
 
-                if (linesAdded == 0)
+                var filtersAdded = 0;
+                foreach (var filter in options.Filters)
+                {
+                    sb.AppendLine();
+                    sb.Append(" - ").Append(filter);
+                    filtersAdded++;
+                }
+
+                if (topicsAdded == 0 && filtersAdded == 0)
                 {
                     sb.Append(" - Configuration is empty");
                 }
@@ -107,6 +126,11 @@ internal sealed class ApplicationLifetimeLoggingHostedService : IHostedService, 
                     {
                         this._logger.LogWarning("- Invalid URL detected in configuration: {Error}", error);
                     }
+                }
+
+                foreach (var filter in options.InvalidFilters)
+                {
+                    this._logger.LogWarning("- Invalid filter detected in configuration: {Filter}", filter);
                 }
             }
 

@@ -1,11 +1,11 @@
-using Azure.Core.Pipeline;
 using Azure;
-using EventGridEmulator.Configuration;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
+using Azure.Core.Pipeline;
 using Azure.Messaging;
 using Azure.Messaging.EventGrid;
 using Azure.Messaging.EventGrid.Namespaces;
+using EventGridEmulator.Configuration;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 
 namespace EventGridEmulator.Tests;
 
@@ -112,7 +112,46 @@ public sealed class PullModelEventGridClientTests
         await Assert.ThrowsAsync<TaskCanceledException>(() => receiver.ReceiveAsync(cancellationToken: cts.Token));
     }
 
-    private async Task<(EventGridPublisherClient, EventGridReceiverClient)> CreateTestEventGridClient(string topicName, string eventSubscriptionName)
+    [Fact]
+    public async Task CanFilterEventTypes()
+    {
+        var topicName = "customers";
+        var eventSubscriptionName = "CustomSubscription";
+        var filter = new Filter()
+        {
+            Subscription = eventSubscriptionName,
+            IncludedEventTypes = ["CustomerUpdated", "CustomerCreated"],
+        };
+
+        var (publisher, receiver) = await this.CreateTestEventGridClient(
+            topicName,
+            eventSubscriptionName,
+            filter
+        );
+
+        var data = new EventData("CustomId1");
+        _ = await publisher.SendEventsAsync(
+            [
+                new CloudEvent("source", "CustomerCreated", data),
+                new CloudEvent("source", "CustomerDeleted", data),
+                new CloudEvent("source", "CustomerUpdated", data),
+            ]
+        );
+
+        for (var i = 0; i < 2; i++)
+        {
+            var events = await receiver.ReceiveAsync();
+            var ev = Assert.Single(events.Value.Details);
+            Assert.Equal("source", ev.Event.Source);
+            Assert.Contains(ev.Event.Type, filter.IncludedEventTypes);
+        }
+    }
+
+    private async Task<(EventGridPublisherClient, EventGridReceiverClient)> CreateTestEventGridClient(
+        string topicName,
+        string eventSubscriptionName,
+        Filter? filter = null
+    )
     {
         var factory = new CustomWebApplicationFactory(options =>
         {
@@ -122,6 +161,10 @@ public sealed class PullModelEventGridClientTests
                 {
                     [topicName] = [$"pull://{eventSubscriptionName}"],
                 };
+                if (filter != null)
+                {
+                    topicOptions.Filters = [filter];
+                }
             });
         });
 
@@ -148,4 +191,3 @@ public sealed class PullModelEventGridClientTests
             => builder.ConfigureTestServices(configureServices);
     }
 }
-

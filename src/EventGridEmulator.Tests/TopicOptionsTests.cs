@@ -1,4 +1,4 @@
-﻿using EventGridEmulator.Configuration;
+using EventGridEmulator.Configuration;
 
 namespace EventGridEmulator.Tests;
 
@@ -15,6 +15,28 @@ public class TopicOptionsTests
         var optionsB = new TopicOptions
         {
             Topics = new Dictionary<string, string[]> { ["a"] = new[] { "b", "c", } },
+        };
+
+        var optionsC = new TopicOptions(optionsB);
+
+        Assert.Equal(optionsA, optionsB);
+        Assert.Equal(optionsB, optionsC);
+        Assert.Equal(optionsA, optionsC);
+    }
+
+    [Fact]
+    public void Equals_Returns_True_When_Options_Are_Equal_With_Filters()
+    {
+        var optionsA = new TopicOptions
+        {
+            Topics = new Dictionary<string, string[]> { ["a"] = ["b", "c"] },
+            Filters = [new Filter() { Subscription = "b", IncludedEventTypes = ["f"] }],
+        };
+
+        var optionsB = new TopicOptions
+        {
+            Topics = new Dictionary<string, string[]> { ["a"] = ["b", "c"] },
+            Filters = [new Filter() { Subscription = "b", IncludedEventTypes = ["f"] }],
         };
 
         var optionsC = new TopicOptions(optionsB);

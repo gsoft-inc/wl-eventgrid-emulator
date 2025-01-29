@@ -11,15 +11,21 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
     public void PostConfigure(string? name, TopicOptions options)
     {
         options.Topics ??= new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
-        var (topics, invalidUrls) = CorrectTopics(options.Topics);
+        var (topics, invalidUrls, correctSubscriberNames) = CorrectTopics(options.Topics);
         options.Topics = topics;
         options.InvalidUrls = invalidUrls;
+        options.Filters = CorrectFilters(options, correctSubscriberNames);
     }
 
-    private static (Dictionary<string, string[]> Topics, HashSet<string>? InvalidUrls) CorrectTopics(Dictionary<string, string[]> topics)
+    private static (
+        Dictionary<string, string[]> Topics,
+        HashSet<string>? InvalidUrls,
+        Dictionary<string, string>
+    ) CorrectTopics(Dictionary<string, string[]> topics)
     {
         var correctedTopics = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
         HashSet<string>? errors = null;
+        var correctSubscriberNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var (topic, subscribers) in topics)
         {
@@ -40,7 +46,9 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
             {
                 if (Uri.TryCreate(subscriber, UriKind.Absolute, out var subscriberUri) && TopicOptions.IsValidScheme(subscriberUri))
                 {
-                    correctedSubscribers.Add(subscriberUri.ToString());
+                    var correctedSubscriber = subscriberUri.ToString();
+                    correctedSubscribers.Add(correctedSubscriber);
+                    correctSubscriberNames[subscriber] = correctedSubscriber;
                 }
                 else if (!string.IsNullOrWhiteSpace(subscriber))
                 {
@@ -60,6 +68,35 @@ internal sealed class PostConfigureTopicOptionsCorrector : IPostConfigureOptions
             correctedTopics[topic] = new HashSet<string>(subscribers, StringComparer.OrdinalIgnoreCase).ToArray();
         }
 
-        return (correctedTopics, errors);
+        return (correctedTopics, errors, correctSubscriberNames);
+    }
+
+    private static Filter[] CorrectFilters(
+        TopicOptions options,
+        Dictionary<string, string> correctSubscriberNames
+    )
+    {
+        var filters = new Filter[options.Filters.Length];
+        var validFilterCount = 0;
+
+        foreach (var filter in options.Filters)
+        {
+            var isValidUrl =
+                Uri.TryCreate(filter.Subscription, UriKind.Absolute, out var uri)
+                || Uri.TryCreate($"pull://{filter.Subscription}", UriKind.Absolute, out uri);
+
+            if (isValidUrl && correctSubscriberNames.TryGetValue(uri!.OriginalString, out var correctName))
+            {
+                filter.Subscription = correctName;
+                filters[validFilterCount++] = filter;
+            }
+            else
+            {
+                options.InvalidFilters.Add(filter);
+            }
+        }
+
+        Array.Resize(ref filters, validFilterCount);
+        return filters;
     }
 }

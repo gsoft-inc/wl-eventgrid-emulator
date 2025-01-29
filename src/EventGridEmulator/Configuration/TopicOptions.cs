@@ -21,10 +21,14 @@ internal sealed class TopicOptions
             Array.Copy(subscribers, subscribersCopy, subscribers.Length);
             this.Topics.Add(topic, subscribersCopy);
         }
+
+        this.Filters = original.Filters.Select(f => new Filter(f)).ToArray();
     }
 
     public HashSet<string>? InvalidUrls { get; set; }
-    public Dictionary<string, string[]> Topics { get; set; } = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+    public List<Filter> InvalidFilters { get; set; } = [];
+    public Dictionary<string, string[]> Topics { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Filter[] Filters { get; set; } = [];
 
     internal static bool IsValidScheme(Uri uri)
     {
@@ -59,7 +63,7 @@ internal sealed class TopicOptions
             // pull://subscriptionName
             if (Uri.TryCreate(value, UriKind.Absolute, out var url) && IsPullScheme(url))
             {
-                yield return new PullSubscriber(url.Host);
+                yield return new PullSubscriber(url.Host, url.OriginalString);
             }
         }
     }
@@ -74,58 +78,38 @@ internal sealed class TopicOptions
             return true;
         }
 
-        return obj is TopicOptions other && this.Equals(other);
-    }
-
-    private bool Equals(TopicOptions other) => (this.Topics, other.Topics) switch
-    {
-        (null, null) => true,
-        (not null, null) => false,
-        (null, not null) => false,
-        (not null, not null) => this.TopicsEquals(other),
-    };
-
-    private bool TopicsEquals(TopicOptions other)
-    {
-        if (this.Topics.Count != other.Topics.Count)
+        if (obj is not TopicOptions other)
         {
             return false;
         }
 
-        foreach (var (topicName, subscribers) in this.Topics)
-        {
-            if (!other.Topics.TryGetValue(topicName, out var otherSubscribers))
-            {
-                return false;
-            }
-
-            if (!subscribers.SequenceEqual(otherSubscribers, StringComparer.Ordinal))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return this.Topics.Count == other.Topics.Count
+            && this.Topics.All(kv =>
+                other.Topics.TryGetValue(kv.Key, out var value) && kv.Value.SequenceEqual(value)
+            )
+            && this.Filters.Length == other.Filters.Length
+            && this.Filters.SequenceEqual(other.Filters);
     }
 
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "This is a DTO, also we don't plan on storing this in a hash table.")]
     public override int GetHashCode()
     {
-        unchecked
+        var hash = new HashCode();
+        foreach (var kv in this.Topics.OrderBy(k => k.Key))
         {
-            var hash = 17;
-
-            foreach (var pair in this.Topics)
-            {
-                hash = hash * 23 + pair.Key.GetHashCode();
-                hash = hash * 23 + (pair.Value != null ? pair.Value.GetHashCode() : 0);
-            }
-
-            return hash;
+            hash.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
+            hash.Add(kv.Value);
         }
+
+        foreach (var filter in this.Filters)
+        {
+            hash.Add(filter.GetHashCode());
+        }
+
+        return hash.ToHashCode();
     }
 }
 
 internal sealed record PushSubscriber(string Uri);
 
-internal sealed record PullSubscriber(string SubscriptionName);
+internal sealed record PullSubscriber(string SubscriptionName, string Uri);

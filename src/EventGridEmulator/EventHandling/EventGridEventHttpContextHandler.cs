@@ -24,4 +24,11 @@ internal sealed class EventGridEventHttpContextHandler : BaseEventHttpContextHan
             @event.Topic = $"{SubscriberConstants.DefaultTopicValue}{topicName}";
         }
     }
+
+    protected override EventGridEvent[] FilterEvents(EventGridEvent[] events, Filter filter)
+    {
+        return filter.IncludedEventTypes == null
+            ? events
+            : events.Where(e => filter.IncludedEventTypes.Contains(e.EventType)).ToArray();
+    }
 }
