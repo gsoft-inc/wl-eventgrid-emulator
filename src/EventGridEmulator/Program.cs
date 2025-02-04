@@ -14,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.defaults.json", optional: false, reloadOnChange: false);
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables("ASPNETCORE_");
 builder.Configuration.AddEnvironmentVariables();
 
 // Serilog provides a more concise console logging experience with colored tokens
