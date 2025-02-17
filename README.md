@@ -191,4 +191,4 @@ await client.AcknowledgeCloudEventsAsync(topicName, eventSubscriptionName, new A
 
 ## License
 
-This code is licensed under the Apache License, Version 2.0. You may obtain a copy of this license at https://github.com/gsoft-inc/workleap-license/blob/main/LICENSE.
+This code is licensed under the Apache License, Version 2.0. You may obtain a copy of this license at https://github.com/workleap/workleap-license/blob/main/LICENSE.
